@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Men Shop — Outreach CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- TinyMCE Rich Text Editor -->
+
+<style>
+:root {
+  --navy:#0d1b2a; --navy2:#142338; --navy3:#1c3050;
+  --gold:#c9943a; --gold2:#e0b96a; --gold3:#f0d9a8;
+  --cream:#f7f3ec; --cream2:#ede8df;
+  --white:#ffffff;
+  --text:#0d1b2a; --text2:#4a5870; --text3:#8a96a8;
+  --border:rgba(13,27,42,0.09); --border2:rgba(13,27,42,0.16);
+  --red-bg:#fff1f1; --red-c:#b91c1c;
+  --blue-bg:#eff6ff; --blue-c:#1d4ed8;
+  --amber-bg:#fffbeb; --amber-c:#92400e;
+  --green-bg:#f0fdf4; --green-c:#166534;
+  --purple-bg:#f5f3ff; --purple-c:#5b21b6;
+  --teal-bg:#f0fdfa; --teal-c:#115e59;
+  --r:10px; --r-lg:16px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.05);
+  --sh-lg:0 8px 32px rgba(0,0,0,.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--navy);display:flex;flex-direction:column;z-index:50}
+.sb-logo{padding:28px 24px 22px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-logo .brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold2);letter-spacing:.03em;line-height:1.2}
+.sb-logo .sub{font-size:10px;color:rgba(255,255,255,.32);letter-spacing:.15em;text-transform:uppercase;margin-top:5px}
+.sb-stats{padding:18px 16px 0}
+.sb-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:10px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;transition:.15s}
+.sb-stat:hover{background:rgba(255,255,255,.07)}
+.sb-stat .sl{font-size:11px;color:rgba(255,255,255,.4)}
+.sb-stat .sv{font-size:18px;font-weight:600;color:var(--gold2)}
+.sb-nav{padding:16px 12px;flex:1;display:flex;flex-direction:column;gap:3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:var(--r);font-size:13px;color:rgba(255,255,255,.5);cursor:pointer;border:none;background:none;text-align:left;width:100%;transition:.15s;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.82)}
+.nav-item.active{background:rgba(201,148,58,.18);color:var(--gold2)}
+.nav-item svg{flex-shrink:0;opacity:.8}
+.sb-bottom{padding:16px;border-top:1px solid rgba(255,255,255,.06)}
+.smtp-row{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.35)}
+.smtp-dot{width:7px;height:7px;border-radius:50%;background:#6b7280;flex-shrink:0;transition:.3s}
+.smtp-dot.on{background:#34d399;box-shadow:0 0 7px #34d39988}
+
+/* MAIN */
+.main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar-left{display:flex;flex-direction:column}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;line-height:1.2}
+.topbar-sub{font-size:11px;color:var(--text3);letter-spacing:.03em}
+.topbar-actions{display:flex;gap:9px;align-items:center}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text);transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn:hover{background:var(--cream);border-color:var(--border2)}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:var(--white);font-weight:600}
+.btn-gold:hover{background:var(--gold2);border-color:var(--gold2);color:var(--navy)}
+.btn-navy{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.btn-navy:hover{background:var(--navy2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--cream2);border-color:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-danger{background:var(--red-bg);border-color:var(--red-c);color:var(--red-c)}
+.btn-danger:hover{background:var(--red-c);color:var(--white)}
+
+/* CONTENT */
+.content{padding:28px 32px;flex:1}
+.panel{display:none}
+.panel.active{display:block}
+
+/* DASHBOARD CARDS */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.dash-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:.2s}
+.dash-card:hover{box-shadow:var(--sh-lg);transform:translateY(-1px)}
+.dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.dash-card.c-gray::before{background:var(--text3)}
+.dash-card.c-blue::before{background:#3b82f6}
+.dash-card.c-amber::before{background:#f59e0b}
+.dash-card.c-green::before{background:#10b981}
+.dash-card.c-purple::before{background:#8b5cf6}
+.dash-card.c-teal::before{background:#14b8a6}
+.dc-label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.dc-value{font-size:32px;font-weight:600;font-family:'Cormorant Garamond',serif;line-height:1}
+.dc-sub{font-size:11px;color:var(--text3);margin-top:6px}
+
+/* PROGRESS */
+.progress-section{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 26px;box-shadow:var(--sh);margin-bottom:28px}
+.progress-section h3{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;margin-bottom:16px}
+.progress-track{height:10px;background:var(--cream2);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:.5s}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+
+/* ACTIVITY */
+.activity-section{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 26px;box-shadow:var(--sh)}
+.activity-section h3{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;margin-bottom:16px}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:5px;flex-shrink:0}
+.activity-text{font-size:13px;color:var(--text2);flex:1;line-height:1.4}
+.activity-time{font-size:11px;color:var(--text3);white-space:nowrap}
+
+/* TOOLBAR */
+.toolbar{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;box-shadow:var(--sh)}
+.toolbar input[type=text]{flex:1;min-width:180px;padding:8px 13px;border:1px solid var(--border2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--cream);outline:none;transition:.15s}
+.toolbar input[type=text]:focus{border-color:var(--gold);background:var(--white)}
+.toolbar select{padding:8px 12px;border:1px solid var(--border2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--cream);outline:none;cursor:pointer}
+.toolbar select:focus{border-color:var(--gold)}
+
+/* TABLE */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh)}
+.table-wrap table{width:100%;border-collapse:collapse}
+.table-wrap thead{background:var(--navy)}
+.table-wrap th{padding:12px 16px;text-align:left;font-size:10px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.table-wrap td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.table-wrap tr:last-child td{border-bottom:none}
+.table-wrap tr:hover td{background:#faf9f7}
+.agency-name{font-weight:500;font-size:13px}
+.agency-meta{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap}
+.s-not{background:var(--s0-bg,#f1f3f5);color:#4a5568}
+.s-emailed{background:var(--blue-bg);color:var(--blue-c)}
+.s-replied{background:var(--amber-bg);color:var(--amber-c)}
+.s-called{background:var(--green-bg);color:var(--green-c)}
+.s-followed{background:var(--purple-bg);color:var(--purple-c)}
+.s-converted{background:var(--teal-bg);color:var(--teal-c)}
+.badge-type{background:rgba(13,27,42,.07);color:var(--navy3)}
+
+/* DETAIL PANEL */
+.detail-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(13,27,42,.45);backdrop-filter:blur(2px)}
+.detail-overlay.open{display:flex;align-items:stretch;justify-content:flex-end}
+.detail-panel{background:var(--white);width:480px;max-width:100%;height:100%;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.15);animation:slideIn .25s ease}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+.detail-header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.detail-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1.3}
+.detail-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.detail-body{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:18px}
+.detail-footer{padding:18px 28px;border-top:1px solid var(--border);display:flex;gap:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+.field input,.field textarea,.field select{padding:9px 13px;border:1px solid var(--border2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--cream);transition:.15s;outline:none;width:100%}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);background:var(--white)}
+.field textarea{resize:vertical;min-height:90px;line-height:1.6}
+.log-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto}
+.log-item{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--text2);background:var(--cream);padding:8px 11px;border-radius:var(--r)}
+.log-time{color:var(--text3);white-space:nowrap;font-size:11px;margin-top:1px}
+
+/* EMAIL MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(13,27,42,.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r-lg);width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);animation:modalIn .2s ease}
+@keyframes modalIn{from{transform:scale(.96) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-header{padding:22px 26px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600}
+.modal-body{padding:24px 26px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.modal-footer{padding:16px 26px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.modal-footer-left{display:flex;gap:8px}
+.modal-footer-right{display:flex;gap:8px}
+
+/* CUSTOM PROMPT SECTION */
+.custom-prompt-section{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:6px}
+.custom-prompt-section label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:8px}
+.custom-prompt-section textarea{width:100%;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--white);min-height:80px;line-height:1.6;resize:vertical;outline:none;transition:.15s}
+.custom-prompt-section textarea:focus{border-color:var(--gold)}
+.custom-prompt-section .hint{font-size:11px;color:var(--text3);margin-top:6px}
+
+/* ATTACHMENTS */
+.attachment-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.attachment-item{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:var(--cream);border:1px solid var(--border);border-radius:var(--r);font-size:12px}
+.attachment-item button{background:none;border:none;color:var(--red-c);cursor:pointer;padding:0;margin-left:4px;font-size:14px;line-height:1}
+.attachment-item button:hover{color:var(--red-c);opacity:.8}
+
+/* BATCH MODAL */
+.batch-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto}
+.batch-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--cream);border-radius:var(--r);border:1px solid var(--border)}
+.batch-item.selected{background:var(--gold3);border-color:var(--gold)}
+.batch-item-info .name{font-size:13px;font-weight:500}
+.batch-item-info .email{font-size:11px;color:var(--text3);margin-top:2px}
+.batch-progress{margin-top:18px;display:none}
+.pbar-track{height:8px;background:var(--cream2);border-radius:99px;overflow:hidden;margin:8px 0}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:.4s;width:0%}
+.pbar-label{font-size:12px;color:var(--text2)}
+.batch-checkbox{cursor:pointer;width:18px;height:18px;flex-shrink:0}
+
+/* TEMPLATE CARDS */
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:18px}
+.template-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--sh);transition:.2s;cursor:pointer}
+.template-card:hover{box-shadow:var(--sh-lg);transform:translateY(-1px);border-color:var(--gold)}
+.template-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.template-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600}
+.template-date{font-size:10px;color:var(--text3)}
+.template-preview{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px;max-height:60px;overflow:hidden}
+.template-actions{display:flex;gap:6px}
+
+/* SETTINGS */
+.settings-grid{display:flex;flex-direction:column;gap:22px;max-width:660px}
+.settings-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px 28px;box-shadow:var(--sh)}
+.settings-card h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-bottom:5px}
+.settings-card p{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.settings-grid-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-full{grid-column:1/-1}
+.save-msg{font-size:12px;color:#059669;min-height:18px;margin-top:6px}
+
+/* SPINNER */
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--white);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.spinner-dark{border-color:rgba(13,27,42,.2);border-top-color:var(--navy)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:12px 20px;border-radius:var(--r);font-size:13px;z-index:9999;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;box-shadow:var(--sh-lg);border-left:3px solid var(--gold)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* DIVIDER */
+.section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 24px;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.4}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--cream2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+/* TinyMCE Overrides */
+
+
+/* Batch Filter Tabs */
+.batch-filter-tabs{display:flex;gap:8px;margin-bottom:16px;padding:12px;background:var(--cream);border-radius:var(--r)}
+.batch-filter-tab{padding:6px 14px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--text2);transition:.15s;font-family:'DM Sans',sans-serif}
+.batch-filter-tab:hover{background:var(--white)}
+.batch-filter-tab.active{background:var(--gold);color:var(--white);border-color:var(--gold)}
+
+/* Text Formatting Buttons */
+.format-toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:var(--cream);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px}
+.format-btn{padding:6px 12px;border:1px solid var(--border);background:var(--white);border-radius:var(--r);font-size:12px;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif;color:var(--text);font-weight:500}
+.format-btn:hover{background:var(--gold);color:var(--white);border-color:var(--gold)}
+.format-btn:active{transform:scale(.95)}
+.format-btn strong{font-weight:700}
+.format-btn em{font-style:italic}
+.format-btn u{text-decoration:underline}
+
+/* Preserve line breaks in textarea */
+.email-body-edit{
+  white-space:pre-wrap;
+  font-family:'DM Sans',sans-serif;
+  line-height:1.7;
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="brand">The Men Shop</div>
+    <div class="sub">Outreach CRM</div>
+  </div>
+  <div class="sb-stats" id="sb-stats"></div>
+  <nav class="sb-nav">
+    <button class="nav-item active" data-panel="dashboard" onclick="nav(this,'dashboard')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" data-panel="agencies" onclick="nav(this,'agencies')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Agencies
+    </button>
+    <button class="nav-item" data-panel="templates" onclick="nav(this,'templates')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Templates
+    </button>
+    <button class="nav-item" data-panel="settings" onclick="nav(this,'settings')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
+  <div class="sb-bottom">
+    <div class="smtp-row" style="margin-bottom:10px">
+      <div class="smtp-dot" id="smtp-dot"></div>
+      <span id="smtp-label">Gmail not connected</span>
+    </div>
+    <button class="btn btn-sm" id="gmail-auth-btn" onclick="gmailSignIn()" style="width:100%;justify-content:center;font-size:12px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Connect Gmail
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-sub">Sarawak Government Agencies · Necktie B2B Campaign</div>
+    </div>
+    <div class="topbar-actions" id="topbar-actions">
+      <button class="btn btn-gold" onclick="openBatch()">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        Batch Send Emails
+      </button>
+      <button class="btn" onclick="exportCSV()">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD PANEL -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="dash-grid" id="dash-cards"></div>
+      <div class="progress-section">
+        <h3>Campaign Progress</h3>
+        <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+        <div class="progress-labels"><span id="prog-text"></span><span id="prog-pct"></span></div>
+      </div>
+      <div class="activity-section">
+        <h3>Recent Activity</h3>
+        <div id="activity-list"></div>
+      </div>
+    </div>
+
+    <!-- AGENCIES PANEL -->
+    <div class="panel" id="panel-agencies">
+      <div class="toolbar">
+        <input type="text" id="search-box" placeholder="🔍 Search agencies..." oninput="renderTable()"/>
+        <select id="filter-status" onchange="renderTable()">
+          <option value="">All Statuses</option>
+          <option value="Not Contacted">Not Contacted</option>
+          <option value="Emailed">Emailed</option>
+          <option value="Replied">Replied</option>
+          <option value="Called">Called</option>
+          <option value="Followed Up">Followed Up</option>
+          <option value="Converted">Converted</option>
+        </select>
+        <select id="filter-type" onchange="renderTable()">
+          <option value="">All Types</option>
+          <option value="Department">Department</option>
+          <option value="Ministry">Ministry</option>
+          <option value="Statutory Body">Statutory Body</option>
+          <option value="GLC">GLC</option>
+          <option value="Council">Council</option>
+        </select>
+        <button class="btn btn-gold" onclick="openAgencyModal()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Agency
+        </button>
+      </div>
+      <div class="table-wrap" id="table-container"></div>
+    </div>
+
+    <!-- TEMPLATES PANEL -->
+    <div class="panel" id="panel-templates">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:4px">Email Templates</h2>
+          <p style="font-size:13px;color:var(--text2)">Create reusable templates with placeholders for batch sending</p>
+        </div>
+        <button class="btn btn-gold" onclick="createNewTemplate()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Template
+        </button>
+      </div>
+      <div id="templates-container"></div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-grid">
+        
+        <!-- Gmail Connection -->
+        <div class="settings-card">
+          <h3>Gmail Connection</h3>
+          <p>Connect your Gmail account to send emails. Emails will be sent as: <strong>The Men Shop &lt;info@tmst.my&gt;</strong></p>
+          <div id="gmail-status-card" style="padding:12px;background:var(--cream);border-radius:var(--r);font-size:13px;margin-bottom:16px">Not connected — click "Connect Gmail" in the sidebar.</div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-navy" id="gmail-connect-btn" onclick="gmailSignIn()">Connect Gmail</button>
+            <button class="btn" id="gmail-disconnect-btn" onclick="gmailSignOut()" style="display:none">Disconnect</button>
+          </div>
+          <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+            <label style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:8px">Send Test Email</label>
+            <div style="display:flex;gap:8px">
+              <input type="email" id="test-email-to" placeholder="your@email.com" style="flex:1;padding:9px 13px;border:1px solid var(--border2);border-radius:var(--r);font-size:13px;background:var(--cream)"/>
+              <button class="btn btn-navy" id="btn-test-send" onclick="sendTestEmail()">Send Test</button>
+            </div>
+            <div id="test-email-status" style="font-size:12px;color:var(--text3);margin-top:8px;min-height:18px"></div>
+          </div>
+        </div>
+
+        <!-- Anthropic API -->
+        <div class="settings-card">
+          <h3>Anthropic API</h3>
+          <p>Required for AI-powered email generation. Get your API key from <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">console.anthropic.com</a></p>
+          <div class="field"><label>API Key</label><input type="password" id="s-apikey" placeholder="sk-ant-..."/></div>
+          <div class="save-msg" id="ai-save-msg"></div>
+          <div style="margin-top:14px"><button class="btn btn-navy" onclick="saveAI()">Save API Key</button></div>
+        </div>
+
+        <!-- Email Template -->
+        <div class="settings-card">
+          <h3>Default Email Template</h3>
+          <p>Customize how Claude writes your emails by default (templates can override these settings)</p>
+          <div class="settings-grid-fields">
+            <div class="field field-full"><label>Company Context</label>
+              <textarea id="s-context" rows="4" placeholder="Background info about your company..."></textarea>
+            </div>
+            <div class="field"><label>Tone</label>
+              <select id="s-tone">
+                <option value="professional warm">Professional & Warm</option>
+                <option value="formal corporate">Formal & Corporate</option>
+                <option value="friendly casual">Friendly & Approachable</option>
+                <option value="concise direct">Concise & Direct</option>
+              </select>
+            </div>
+            <div class="field field-full"><label>Sign-off Name</label><input id="s-signoff" placeholder="e.g. Ahmad / The Men Shop Team"/></div>
+            <div class="save-msg" id="tpl-save-msg"></div>
+            <div style="margin-top:14px"><button class="btn btn-navy" onclick="saveDefaultTemplate()">Save Template</button></div>
+          </div>
+        </div>
+
+
+        
+        
+        
+        <!-- Template Cleanup -->
+        <div class="settings-card">
+          <h3>🧹 Template Cleanup</h3>
+          <p>If your templates show visible HTML tags like &lt;p&gt; or &lt;/p&gt;, click here to clean them up.</p>
+          <button class="btn btn-navy" onclick="cleanAllTemplates()">
+            Clean All Templates
+          </button>
+          <div style="font-size:11px;color:var(--text3);margin-top:8px">Removes visible HTML tags and fixes formatting</div>
+        </div>
+
+        <!-- Data Backup -->
+        <div class="settings-card">
+          <h3>💾 Data Backup & Restore</h3>
+          <p>Export your data to keep it safe. Import to restore or transfer to another browser.</p>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn btn-navy" onclick="exportData()">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Backup
+            </button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData()"/>
+            <button class="btn" onclick="document.getElementById('import-file').click()">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Import Backup
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- DETAIL SLIDE PANEL -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-header">
+      <div>
+        <div class="detail-title" id="dp-name"></div>
+        <div class="detail-sub" id="dp-sub"></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" id="dp-edit-agency-btn" onclick="editAgencyFromDetail()" title="Edit agency details">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="closeDetailPanel()">✕ Close</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div id="dp-contact-info" style="background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;font-size:13px;line-height:1.6"></div>
+      <div>
+        <div class="section-label">Status & Assignment</div>
+        <div class="form-row">
+          <div class="field"><label>Status</label>
+            <select id="dp-status" onchange="saveDetail()">
+              <option>Not Contacted</option><option>Emailed</option><option>Replied</option>
+              <option>Called</option><option>Followed Up</option><option>Converted</option>
+            </select>
+          </div>
+          <div class="field"><label>Last Action Date</label><input type="date" id="dp-date" oninput="saveDetail()"/></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Person In Charge (PIC)</div>
+        <div class="form-row">
+          <div class="field"><label>Full Name</label><input id="dp-pic" placeholder="Contact name..." oninput="saveDetail()"/></div>
+          <div class="field"><label>Phone</label><input id="dp-pic-phone" placeholder="+60..." oninput="saveDetail()"/></div>
+          <div class="field"><label>Email</label><input id="dp-pic-email" placeholder="pic@agency.gov.my" oninput="saveDetail()"/></div>
+          <div class="field"><label>Designation</label><input id="dp-pic-title" placeholder="e.g. HR Manager" oninput="saveDetail()"/></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Call Notes</div>
+        <div class="field"><textarea id="dp-notes" rows="4" placeholder="What was discussed, objections, follow-up actions..." oninput="saveDetail()"></textarea></div>
+      </div>
+      <div>
+        <div class="section-label">Activity Log</div>
+        <div class="log-list" id="dp-log"><div style="font-size:12px;color:var(--text3);padding:8px 0">No activity yet.</div></div>
+      </div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-gold" onclick="openEmailSingle()">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        Draft & Send Email
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>✉ Draft Email</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('email-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Template Selector -->
+      <div class="field">
+        <label>Load Template (Optional)</label>
+        <select id="em-template-select" onchange="loadTemplateIntoEmail()">
+          <option value="">— Start from scratch or choose a template —</option>
+        </select>
+      </div>
+      
+      <!-- Custom Prompt Section -->
+      <div class="custom-prompt-section">
+        <label>Custom Instructions (Optional)</label>
+        <textarea id="em-custom-prompt" placeholder="e.g., Make it more formal, mention our 20-year track record, keep it under 100 words..."></textarea>
+        <div class="hint">Tell Claude exactly how you want this email written. Leave blank to use default settings.</div>
+      </div>
+      
+      <div class="field"><label>To</label><input id="em-to" placeholder="recipient@agency.gov.my"/></div>
+      <div class="field"><label>Subject</label><input id="em-subject"/></div>
+      <div class="field">
+        <label>Email Body — Rich Text Editor</label>
+        <div class="format-toolbar">
+          <button type="button" class="format-btn" onclick="formatText('em-body', 'bold')" title="Bold">
+            <strong>B</strong>
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('em-body', 'italic')" title="Italic">
+            <em>I</em>
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('em-body', 'underline')" title="Underline">
+            <u>U</u>
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('em-body', 'link')" title="Insert Link">
+            🔗 Link
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('em-body', 'list')" title="Bullet List">
+            • List
+          </button>
+        </div>
+        <textarea id="em-body" class="email-body-edit" rows="12"></textarea>
+      </div>
+      
+      <!-- Attachments -->
+      <div class="field">
+        <label>Attachments</label>
+        <input type="file" id="em-attachment" multiple style="display:none" onchange="handleAttachments()"/>
+        <button class="btn btn-sm" onclick="document.getElementById('em-attachment').click()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          Add Attachment
+        </button>
+        <div class="attachment-list" id="attachment-list"></div>
+      </div>
+      
+      <div class="email-status" id="em-status"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-sm" id="btn-save-template" onclick="saveEmailAsTemplate()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save as Template
+        </button>
+      </div>
+      <div class="modal-footer-right">
+        <button class="btn" id="btn-regen" onclick="generateEmail()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Generate with AI
+        </button>
+        <button class="btn btn-gold" id="btn-send-email" onclick="sendEmail()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          Send Email
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BATCH MODAL -->
+<div class="modal-overlay" id="batch-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Batch Email Send</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('batch-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Select a template and agencies to send personalized emails. Each email will have agency-specific details automatically filled in.</p>
+      
+      <div class="field" style="margin-bottom:18px">
+        <label>Select Template</label>
+        <select id="batch-template-select" onchange="updateBatchPreview()">
+          <option value="">— Choose a template —</option>
+        </select>
+      </div>
+
+      <div style="background:var(--cream);padding:12px;border-radius:var(--r);margin-bottom:16px;display:none" id="batch-preview">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase">Full Preview (placeholders replaced)</div>
+          <button type="button" class="btn btn-sm" onclick="togglePreviewEdit()" id="preview-edit-btn">Edit</button>
+        </div>
+        <div id="batch-preview-display" style="font-size:13px;color:var(--text);line-height:1.8;max-height:300px;overflow-y:auto;white-space:pre-wrap;padding:14px;background:var(--white);border:1px solid var(--border);border-radius:var(--r)"></div>
+        <textarea id="batch-preview-editor" style="display:none;width:100%;min-height:300px;max-height:500px;overflow-y:auto;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.8;padding:14px;border:1px solid var(--border2);border-radius:var(--r);background:var(--white);resize:vertical"></textarea>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">💡 Scroll to see full email. Click "Edit" to make changes before sending.</div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Filter Agencies</div>
+        <div class="batch-filter-tabs">
+          <button class="batch-filter-tab active" onclick="filterBatchAgencies('not-contacted', this)">Not Contacted</button>
+          <button class="batch-filter-tab" onclick="filterBatchAgencies('contacted', this)">Already Contacted</button>
+          <button class="batch-filter-tab" onclick="filterBatchAgencies('all', this)">All Agencies</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <label style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase">Select Agencies (<span id="batch-showing-count">0</span> shown)</label>
+        <button class="btn btn-sm btn-gold" onclick="toggleSelectAll()">
+          <span id="select-all-text">Select All</span>
+        </button>
+      </div>
+      
+      <div class="batch-list" id="batch-list"></div>
+      <div class="batch-progress" id="batch-progress">
+        <div class="pbar-label" id="batch-label">Starting...</div>
+        <div class="pbar-track"><div class="pbar-fill" id="pbar-fill"></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('batch-modal')">Cancel</button>
+      <button class="btn btn-gold" id="btn-batch-start" onclick="startBatch()">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        Send Selected (<span id="batch-count">0</span>)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AGENCY EDITOR MODAL -->
+<div class="modal-overlay" id="agency-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="agency-modal-title">Add Agency</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('agency-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="field"><label>Full Name *</label><input id="ag-name" placeholder="e.g., Ministry of Finance Sarawak"/></div>
+        <div class="field"><label>Short Name / Acronym *</label><input id="ag-short" placeholder="e.g., MOF"/></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Type *</label>
+          <select id="ag-type">
+            <option value="Department">Department</option>
+            <option value="Ministry">Ministry</option>
+            <option value="Statutory Body">Statutory Body</option>
+            <option value="GLC">GLC</option>
+            <option value="Council">Council</option>
+          </select>
+        </div>
+        <div class="field"><label>City / District *</label><input id="ag-city" placeholder="e.g., Kuching"/></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Email</label><input id="ag-email" type="email" placeholder="contact@agency.gov.my"/></div>
+        <div class="field"><label>Phone</label><input id="ag-phone" placeholder="+60 82-..."/></div>
+      </div>
+      <div style="background:var(--amber-bg);padding:12px;border-radius:var(--r);border:1px solid rgba(146,64,14,0.2);font-size:12px;color:var(--text2);line-height:1.5">
+        💡 Fields marked * are required. Custom agencies you add here are saved in your browser and will appear alongside the built-in list.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left">
+        <button class="btn btn-danger btn-sm" id="ag-delete-btn" onclick="deleteCustomAgency()" style="display:none">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete
+        </button>
+      </div>
+      <div class="modal-footer-right">
+        <button class="btn" onclick="closeModal('agency-modal')">Cancel</button>
+        <button class="btn btn-gold" onclick="saveAgencyFromModal()">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Agency
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE EDITOR MODAL -->
+<div class="modal-overlay" id="template-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="template-modal-title">Create Template</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('template-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Template Name</label>
+        <input id="tmpl-name" placeholder="e.g., Corporate Gifts Pitch"/>
+      </div>
+      <div class="field">
+        <label>Subject</label>
+        <input id="tmpl-subject" placeholder="Use {{agency_name}} for personalization"/>
+      </div>
+      <div class="field">
+        <label>Email Body</label>
+        <div class="format-toolbar">
+          <button type="button" class="format-btn" onclick="formatText('tmpl-body', 'bold')" title="Bold">
+            <strong>B</strong>
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('tmpl-body', 'italic')" title="Italic">
+            <em>I</em>
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('tmpl-body', 'underline')" title="Underline">
+            <u>U</u>
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('tmpl-body', 'link')" title="Insert Link">
+            🔗 Link
+          </button>
+          <button type="button" class="format-btn" onclick="formatText('tmpl-body', 'list')" title="Bullet List">
+            • List
+          </button>
+        </div>
+        <textarea id="tmpl-body" class="email-body-edit" rows="12"></textarea>
+      </div>
+      <div style="background:var(--amber-bg);padding:12px;border-radius:var(--r);border:1px solid rgba(146,64,14,0.2)">
+        <div style="font-size:12px;color:var(--amber-c);font-weight:500;margin-bottom:4px">💡 Placeholders</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.5">
+          When you save a template, agency-specific text is automatically converted to placeholders:<br>
+          <strong>{{agency_name}}</strong> = Full name<br>
+          <strong>{{agency_short}}</strong> = Short name<br>
+          <strong>{{agency_type}}</strong> = Type (Department/Ministry)<br>
+          <strong>{{agency_city}}</strong> = City
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('template-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTemplateFromModal()">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Template
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const BUILTIN_AGENCIES = [
+  {id:1,name:"State Financial Secretary Office, Sarawak",short:"SFSO",name_my:"Pejabat Setiausaha Kewangan Negeri Sarawak",type:"Department",category:"Department of the Premier of Sarawak",address:"Wisma Bapa Malaysia, Petra Jaya, 93502 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-313545",phone2:"",fax:"082-441676",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:2,name:"Public Service Commission of Malaysia, Sarawak",short:"PSC",name_my:"Suruhanjaya Perkhidmatan Awam Malaysia, Sarawak",type:"Department",category:"Federal Departments",address:"Level 10, Bangunan Sultan Iskandar, Jalan Simpang Tiga, 93300 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-240011",phone2:"",fax:"082-246545",website:"spa.gov.my",email:"amelna@spa.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:3,name:"Ministry of Public Health, Housing and Local Government Sarawak",short:"PHHLG",name_my:"Kementerian Kesihatan Awam, Perumahan dan Kerajaan Tempatan Sarawak",type:"Ministry",category:"State Ministries",address:"Aras 18, Bangunan Baitulmakmur II, Medan Raya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-319614",phone2:"",fax:"082-311216",website:"mphlg.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Transit office contact published; no public general email found in snippet."},
+  {id:4,name:"Ministry of Finance and New Economy Sarawak",short:"MOFNE",name_my:"Kementerian Kewangan dan Ekonomi Baharu Sarawak",type:"Ministry",category:"State Ministries",address:"",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"+60 82-441 077",phone2:"",fax:"",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"",verified:"no",notes:"Not in latest CSV — verify manually"},
+  {id:5,name:"Ministry of Education, Innovation and Talent Development Sarawak",short:"EITD",name_my:"Kementerian Pendidikan, Inovasi dan Pembangunan Bakat Sarawak",type:"Ministry",category:"State Ministries",address:"Level 2, Wisma Bandaraya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-374477",phone2:"082-374091",fax:"",website:"meitd.sarawak.gov.my",email:"meesty.swk@sarawak.gov.my",adminEmail:"meesty@sarawak.gov.my",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Site uses MEESTY email branding although ministry name is now MEITD."},
+  {id:6,name:"Sarawak Economic Development Corporation",short:"SEDC",name_my:"Perbadanan Pembangunan Ekonomi Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Menara SEDC, No. 2, The Isthmus, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-551555",phone2:"",fax:"082-551222",website:"sedc.com.my",email:"info@sedc.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"Official site publishes current HQ contact email."},
+  {id:7,name:"Sarawak Energy Berhad",short:"SEB",name_my:"Sarawak Energy Berhad",type:"GLC",category:"State Government Link Company",address:"Wisma SESCO, Petra Jaya, 93673 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-388388",phone2:"1300-88-3111",fax:"082-341063",website:"sarawakenergy.com",email:"corpcomm@sarawakenergy.com",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"TALIKHIDMAT lists customercare@sarawakenergy.com.my and older switchboard; official site publishes current corporate and customer-care contacts."},
+  {id:8,name:"Sarawak Tourism Board",short:"STB",name_my:"Lembaga Pelancongan Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"+60 82-423 600",phone2:"",fax:"",website:"sarawaktourism.com",email:"info@sarawaktourism.com",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Old CSV",verified:"no",notes:"Not in latest CSV — verify manually"},
+  {id:9,name:"Kuching South City Council",short:"MBKS",name_my:"Majlis Bandaraya Kuching Selatan",type:"Council",category:"Local Authorities",address:"Jalan Padungan, 93675 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-354200",phone2:"",fax:"082-417372",website:"mbks.gov.my",email:"farzanaj@mbks.gov.my",adminEmail:"adriamrb@mbks.gov.my",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Two public MBKS emails surfaced in TALIKHIDMAT snippet."},
+  {id:10,name:"Commission of Kuching North City Hall",short:"DBKU",name_my:"Dewan Bandaraya Kuching Utara",type:"Council",category:"Local Authorities",address:"DBKU Bukit Siol, Jalan Semariang, 93050 Petra Jaya, Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-512200",phone2:"",fax:"082-446414",website:"dbku.sarawak.gov.my",email:"aduandbku@dbku.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:11,name:"Land Custody and Development Authority",short:"LCDA",name_my:"Lembaga Kemajuan Tanah Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Level 4, 8 & 12, Wisma Satok, Jalan Satok, 93400 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-235944",phone2:"",fax:"082-236001",website:"lcda.gov.my",email:"info.lcda@lcda.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"219",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"Official site provides current email."},
+  {id:12,name:"Ministry of Natural Resources and Urban Development Sarawak",short:"NRUD",name_my:"Kementerian Sumber Asli dan Pembangunan Bandar Sarawak",type:"Ministry",category:"State Ministries",address:"Level 3, Wisma Sumber Alam, Jalan Stadium, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-313811",phone2:"",fax:"082-313810",website:"mudenr.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"No public general email surfaced in search snippet."},
+  {id:13,name:"Sarawak Forestry Corporation",short:"SFC",name_my:"Perbadanan Perhutanan Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"+60 82-610 088",phone2:"",fax:"",website:"sarawakforestry.com",email:"info@sarawakforestry.com",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Old CSV",verified:"no",notes:"Not in latest CSV — verify manually"},
+  {id:14,name:"Sarawak Rivers Board",short:"SRB",name_my:"Lembaga Sungai-Sungai Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Level 1, 2 & 3, Electra House, Power Street, 93000 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-234092",phone2:"082-234093",fax:"082-234906",website:"srb.sarawak.gov.my",email:"srb@srb.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:15,name:"Miri City Council",short:"MCC",name_my:"Majlis Bandaraya Miri",type:"Council",category:"Local Authorities",address:"Jalan Kingsway, 98000 Miri, Sarawak",district:"Miri",division:"Miri Division",city:"Miri",phone:"085-424111",phone2:"085-433439",fax:"085-415486",website:"miricouncil.gov.my",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only; multiple secondary lines and fax numbers exist."},
+  {id:16,name:"Sibu Municipal Council",short:"SMC",name_my:"Majlis Perbandaran Sibu",type:"Council",category:"Local Authorities",address:"Wisma Sanyan, Jalan Channel, 96000 Sibu, Sarawak",district:"Sibu",division:"Sibu Division",city:"Sibu",phone:"084-333411",phone2:"",fax:"084-320240",website:"smc.gov.my",email:"smc@smc.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:17,name:"Sarawak Health Department",short:"JKN",name_my:"Jabatan Kesihatan Negeri Sarawak",type:"Department",category:"Federal Departments",address:"",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"+60 82-276 666",phone2:"",fax:"",website:"jknsarawak.moh.gov.my",email:"jkn@moh.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Old CSV",verified:"no",notes:"Federal (under MOH). Not in latest CSV"},
+  {id:18,name:"Fire and Rescue Department of Malaysia, Sarawak",short:"BOMBA SWK",name_my:"Jabatan Bomba dan Penyelamat Malaysia, Sarawak",type:"Department",category:"Federal Departments",address:"Jalan Setia Raja, Tabuan Jaya, 93350 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-365994",phone2:"082-362160",fax:"",website:"bomba.gov.my",email:"korporat_swk@bomba.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site, TALIKHIDMAT",verified:"yes",notes:"Official corporate contact plus 24-hour operations centre line from TALIKHIDMAT."},
+  {id:19,name:"Land and Survey Department Sarawak",short:"L&S SWK",name_my:"Jabatan Tanah dan Survei Sarawak",type:"Department",category:"State Departments",address:"Ground Floor to Level 6, Menara Pelita, Jalan Tun Abdul Rahman Yaakub, 93050 Petra Jaya, Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-374555",phone2:"",fax:"082-374575",website:"landsurvey.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found in snippet."},
+  {id:20,name:"SAINS Sdn Bhd",short:"SAINS",name_my:"SAINS Sdn Bhd",type:"GLC",category:"State Government Link Company",address:"Lot 250, Kuching-Samarahan Expressway, 94300 Kota Samarahan, Sarawak",district:"Samarahan",division:"Samarahan Division",city:"Samarahan",phone:"082-668668",phone2:"1300-88-7246",fax:"082-668669",website:"sains.com.my",email:"contactcentre@sains.com.my",adminEmail:"",procurementEmail:"",talikhidmatId:"536",source:"Official site",verified:"yes",notes:"Official site also lists branch offices; TALIKHIDMAT has SAINS but row built from official site."},
+  {id:21,name:"Padawan Municipal Council",short:"MPP",name_my:"Majlis Perbandaran Padawan",type:"Council",category:"Local Authorities",address:"Kota Padawan, Pasar Batu 10, Jalan Penrissen, 93250 Kota Padawan, Sarawak",district:"Padawan",division:"Kuching Division",city:"Padawan",phone:"082-615566",phone2:"",fax:"082-611832",website:"mpp.sarawak.gov.my",email:"mpp@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:22,name:"Sarawak Public Works Department",short:"JKR Sarawak",name_my:"Jabatan Kerja Raya Sarawak",type:"Department",category:"State Departments",address:"Wisma Saberkas, Jalan Tun Abang Haji Openg, 93582 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-203100",phone2:"082-203101",fax:"082-240097",website:"jkr.sarawak.gov.my",email:"corporatejkr@gmail.com",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"TALIKHIDMAT lists alternate switchboard/fax; official site gives corporate email."},
+  {id:23,name:"Sarawak Housing & Real Estate Developers Association",short:"SHEDA",name_my:"",type:"Statutory Body",category:"Industry Association",address:"",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"+60 82-235 577",phone2:"",fax:"",website:"sheda.org.my",email:"sheda@sheda.org.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Old CSV",verified:"no",notes:"Industry association. Not in latest CSV"},
+  {id:24,name:"Sarawak State Library",short:"Pustaka",name_my:"Pustaka Negeri Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Jalan Pustaka, Off Jalan Stadium, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-442000",phone2:"",fax:"082-449944",website:"pustaka-sarawak.com",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:25,name:"Bintulu Development Authority",short:"BDA",name_my:"Lembaga Kemajuan Bintulu",type:"Statutory Body",category:"State Statutory Bodies",address:"",district:"Bintulu",division:"Bintulu Division",city:"Bintulu",phone:"+60 86-331 033",phone2:"",fax:"",website:"bda.gov.my",email:"bda@bda.com.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Old CSV",verified:"no",notes:"Not in latest CSV — verify manually"},
+  {id:200,name:"Ministry of International Trade, Industry and Investment Sarawak",short:"ITII",name_my:"Kementerian Perdagangan Antarabangsa, Industri dan Pelaburan Sarawak",type:"Ministry",category:"State Ministries",address:"Level 22, Wisma Sumber Alam, Jalan Stadium, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-495777",phone2:"",fax:"082-495790",website:"mintred.sarawak.gov.my",email:"mintred@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Current ministry name cross-checked against 2025 Sarawak ministry structure."},
+  {id:201,name:"Ministry of Utility and Telecommunication Sarawak",short:"Utility Telecommunic",name_my:"Kementerian Utiliti dan Telekomunikasi Sarawak",type:"Ministry",category:"State Ministries",address:"Level 13, Wisma Bapa Malaysia, Petra Jaya, 93502 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-551000",phone2:"082-551007",fax:"082-441218",website:"mut.sarawak.gov.my",email:"mut@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Additional published lines include 082-551008 and 082-258258."},
+  {id:202,name:"Ministry of Tourism, Creative Industry and Performing Arts Sarawak",short:"TCIPA",name_my:"Kementerian Pelancongan, Industri Kreatif dan Seni Persembahan Sarawak",type:"Ministry",category:"State Ministries",address:"Level 4, Baitulmakmur II, Medan Raya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-442226",phone2:"",fax:"082-442216",website:"mtcp.sarawak.gov.my",email:"mtcp@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Website uses current 2025 ministry name."},
+  {id:203,name:"Ministry of Transport Sarawak",short:"Transport",name_my:"Kementerian Pengangkutan Sarawak",type:"Ministry",category:"State Ministries",address:"Level 4, Baitulmakmur Building II, Medan Raya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-472500",phone2:"",fax:"082-472600",website:"mot.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"No public general email surfaced in search snippet."},
+  {id:204,name:"Ministry of Youth, Sports and Entrepreneur Development Sarawak",short:"YSED",name_my:"Kementerian Belia, Sukan dan Pembangunan Usahawan Sarawak",type:"Ministry",category:"State Ministries",address:"Level 16 & 17, Wisma Bapa Malaysia, Petra Jaya, 93502 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-495555",phone2:"",fax:"082-495600",website:"mysed.sarawak.gov.my",email:"mysed@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:205,name:"Ministry of Food Industry, Commodity and Regional Development Sarawak",short:"FICRD",name_my:"Kementerian Industri Makanan, Komoditi dan Pembangunan Wilayah Sarawak",type:"Ministry",category:"State Ministries",address:"Level 1, 4 & 5, Bangunan Baitulmakmur I, Medan Raya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-512030",phone2:"",fax:"082-440410",website:"mficord.sarawak.gov.my",email:"mficord@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:206,name:"Department of Irrigation and Drainage Sarawak",short:"Irrigation Drainage",name_my:"Jabatan Pengairan dan Saliran Sarawak",type:"Department",category:"State Departments",address:"10th Floor, Wisma Saberkas, Jalan Tun Abang Haji Openg, 93660 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-414345",phone2:"",fax:"082-240272",website:"did.sarawak.gov.my",email:"didtkm@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:207,name:"Sarawak Welfare Department",short:"Welfare",name_my:"Jabatan Kebajikan Masyarakat Sarawak",type:"Department",category:"State Departments",address:"Wisma Kebajikan, Lot 4273, Block 14, Off Jalan Siol Kanan, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-374888",phone2:"",fax:"082-374890",website:"welfare.sarawak.gov.my",email:"welfare@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"67",source:"TALIKHIDMAT",verified:"yes",notes:"Fax field on TALIKHIDMAT shows multiple lines; main fax recorded."},
+  {id:208,name:"State Treasury Department, Sarawak",short:"State Treasury",name_my:"Perbendaharaan Negeri Sarawak",type:"Department",category:"Department of the Premier of Sarawak",address:"Level 9-10, Bangunan Baitulmakmur II, Medan Raya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-495959",phone2:"",fax:"082-495800",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Uses generic sarawak.gov.my routing address."},
+  {id:209,name:"State Planning Authority",short:"SPA",name_my:"Pihak Berkuasa Perancangan Negeri",type:"Department",category:"Department of the Premier of Sarawak",address:"Level 8, Bangunan Baitulmakmur, Jalan Medan, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-311000",phone2:"082-313810",fax:"082-440876",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:210,name:"State Attorney-General Chambers, Sarawak",short:"SAC",name_my:"Peguam Besar Negeri Sarawak",type:"Department",category:"Department of the Premier of Sarawak",address:"Level 15-16, Wisma Bapa Malaysia, Petra Jaya, 93502 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-514478",phone2:"",fax:"082-444537",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"189",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:211,name:"Office of the Governor of Sarawak",short:"Office Governor",name_my:"Pejabat Tuan Yang Terutama Yang di-Pertua Negeri Sarawak",type:"Department",category:"Department of the Premier of Sarawak",address:"Astana Negeri Sarawak, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-312900",phone2:"",fax:"082-440385",website:"",email:"astanafeedback@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:212,name:"State Integrity and Ombudsmans Unit, Department of the Premier of Sarawak",short:"SIOUP",name_my:"Unit Integriti dan Ombudsman Negeri, Jabatan Premier Sarawak",type:"Department",category:"Department of the Premier of Sarawak",address:"Level 7, Left Wing, Bangunan Baitulmakmur II, Medan Jaya, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-510881",phone2:"",fax:"082-311374",website:"",email:"khadijah1@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:213,name:"Sarawak Islamic Council",short:"Islamic Council",name_my:"Majlis Islam Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Level 16, Bangunan Majma' Tuanku Abdul Halim Muadzam Shah, Lorong P. Ramlee, Off Jalan P. Ramlee, 93400 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-507214",phone2:"082-507251",fax:"082-507240",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:214,name:"Rural Water Supply Department Sarawak",short:"RWS",name_my:"Jabatan Bekalan Air Luar Bandar Sarawak",type:"Department",category:"State Departments",address:"Mezzanine & 1st Floor, Bangunan ST3, No.55 Jalan Simpang Tiga, 93350 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-263000",phone2:"",fax:"082-263199",website:"jbalb.sarawak.gov.my",email:"fardillah@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:215,name:"Sewerage Services Department Sarawak",short:"Sewerage Services",name_my:"Jabatan Perkhidmatan Pembetungan Sarawak",type:"Department",category:"State Departments",address:"No. 1, Jalan Tun Datuk Patinggi Abang Haji Muhammad Salahuddin, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-341450",phone2:"",fax:"082-341460",website:"ssd.sarawak.gov.my",email:"enquiry.ssd@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:216,name:"Sarawak Museum Department",short:"Museum",name_my:"Jabatan Muzium Sarawak",type:"Department",category:"State Departments",address:"Bangunan Annex, Jalan P. Ramlee, 93400 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-548181",phone2:"",fax:"082-548281",website:"museum.sarawak.gov.my",email:"rhemyrj@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:217,name:"Contractor and Consultant Registration Unit",short:"CCRU",name_my:"Unit Pendaftaran Kontraktor dan Juruperunding",type:"Department",category:"Department of the Premier of Sarawak",address:"Level 7, Wisma Satok, 93400 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-235810",phone2:"082-235710",fax:"082-251593",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Under State Financial Secretary's Office."},
+  {id:218,name:"Sarawak State Sports Council",short:"SSC",name_my:"Majlis Sukan Negeri Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"c/o Stadium Negeri Sarawak, Jalan Stadium, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-536108",phone2:"",fax:"082-510827",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:219,name:"Sarawak Land Consolidation and Rehabilitation Authority (SALCRA)",short:"SALCRA",name_my:"Lembaga Penyatuan dan Pemulihan Tanah Sarawak (SALCRA)",type:"Statutory Body",category:"State Statutory Bodies",address:"Wisma SALCRA, No. 1, Lot 2220, Block 26, Jalan Dato Mohd Musa, 94300 Kota Samarahan, Sarawak",district:"Samarahan",division:"Samarahan Division",city:"Samarahan",phone:"082-621881",phone2:"082-616177",fax:"082-621876",website:"salcra.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found in TALIKHIDMAT snippet."},
+  {id:220,name:"Regional Corridor Development Authority",short:"RCDA",name_my:"Lembaga Pembangunan Koridor Wilayah",type:"Statutory Body",category:"State Statutory Bodies",address:"Level 1, 2, 5 & 6, LCDA Tower, Lot 2879, The Isthmus, Off Jalan Bako, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-551199",phone2:"",fax:"082-551190",website:"recoda.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:221,name:"Yayasan Sarawak",short:"Yayasan",name_my:"Yayasan Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Wisma Adenan, Jalan Sultan Tengah, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-441686",phone2:"",fax:"082-440023",website:"yayasansarawak.org.my",email:"ys@yayasansarawak.org.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:222,name:"State Farmers Organisation Sarawak",short:"SFO",name_my:"Pertubuhan Peladang Negeri Sarawak",type:"Statutory Body",category:"State Statutory Bodies",address:"Wisma Pertubuhan Peladang, Dusun Road, Off Jalan Ong Tiang Swee, 93200 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-420162",phone2:"",fax:"082-424564",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:223,name:"Sarawak Metro Sdn Bhd",short:"Metro",name_my:"Sarawak Metro Sdn Bhd",type:"GLC",category:"State Government Link Company",address:"SF205, SF210-212, Second Floor, Riverside Shopping Complex, Jalan Tunku Abdul Rahman, 93100 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-524222",phone2:"",fax:"082-524224",website:"mysarawakmetro.com",email:"info@mysarawakmetro.com",adminEmail:"",procurementEmail:"",talikhidmatId:"1146",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"TALIKHIDMAT listing shows older Gateway Kuching / specific email; official site uses info@mysarawakmetro.com."},
+  {id:224,name:"Petroleum Sarawak Berhad",short:"PETROS",name_my:"Petroleum Sarawak Berhad",type:"GLC",category:"State Government Link Company",address:"Level 6, CT660, Block C, iCOM Square, Jalan Pending, 93450 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-552901",phone2:"082-552905",fax:"082-552902",website:"petroleumsarawak.com",email:"admin@petroleumsarawak.com",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Official PETROS pages warn that only @petroleumsarawak.com email is official."},
+  {id:225,name:"Hornbill Skyways Sdn Bhd",short:"Hornbill Skyways",name_my:"Hornbill Skyways Sdn Bhd",type:"GLC",category:"State Government Link Company",address:"Level 6, Chen Ling Tower, The Podium, Jalan Tun Datuk Patinggi Hj. Ahmad Zaidi Adruce, 93200 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-285377",phone2:"082-455737",fax:"082-285351",website:"hornbillskyways.com",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Corporate office and main base both published; no general email surfaced."},
+  {id:226,name:"Bintulu Port Holdings Berhad",short:"BPHB",name_my:"Bintulu Port Holdings Berhad",type:"GLC",category:"State Government Link Company",address:"Lot 15, Block 20, Kemena Land District, 12th Mile Tanjung Kidurong Road, P.O. Box 996, 97008 Bintulu, Sarawak",district:"Bintulu",division:"Bintulu Division",city:"Bintulu",phone:"086-291001",phone2:"013-8992900",fax:"086-253597",website:"bintuluport.com.my",email:"customerservice@bintuluport.com.my",adminEmail:"",procurementEmail:"business_enquiries@bintuluport.com.my",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Business enquiry line and email published separately on contact form."},
+  {id:227,name:"Cahya Mata Sarawak Berhad",short:"CMS",name_my:"Cahya Mata Sarawak Berhad",type:"GLC",category:"Public Listed Company / Sarawak-linked",address:"Level 6, Wisma Mahmud, Jalan Sungai Sarawak, 93100 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-238888",phone2:"",fax:"082-333828",website:"cahyamata.com",email:"www@hq.cmsb.com.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Contact came from CMS group directory PDF surfaced via web."},
+  {id:228,name:"Naim Holdings Berhad",short:"Naim Holdings",name_my:"Naim Holdings Berhad",type:"GLC",category:"Public Listed Company / Sarawak-linked",address:"9th Floor, Wisma Naim, 2 1/2 Mile Rock Road, 93200 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-411667",phone2:"",fax:"082-429869",website:"naim.com.my",email:"enquiries@naim.com.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:229,name:"Ta Ann Holdings Berhad",short:"TAH",name_my:"Ta Ann Holdings Berhad",type:"GLC",category:"Public Listed Company / Sarawak-linked",address:"No. 6, Jalan Rawang, 96000 Sibu, Sarawak",district:"Sibu",division:"Sibu Division",city:"Sibu",phone:"",phone2:"",fax:"",website:"taann.com.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"no",notes:"Official site surfaced address but no usable public phone/email in search snippets reviewed."},
+  {id:230,name:"Sarawak Plantation Berhad",short:"Plantation",name_my:"Sarawak Plantation Berhad",type:"GLC",category:"Public Listed Company / Sarawak-linked",address:"8th Floor, Wisma NAIM, 2 1/2 Mile, Rock Road, 93200 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-233550",phone2:"082-233560",fax:"082-233670",website:"spbgroup.com.my",email:"spb@spbgroup.com.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:231,name:"National Registration Department of Malaysia, Sarawak",short:"National Registratio",name_my:"Jabatan Pendaftaran Negara Malaysia, Sarawak",type:"Department",category:"Federal Departments",address:"Level 2, Bangunan Tun Datuk Patinggi Tuanku Haji Bujang, 93551 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-242223",phone2:"",fax:"082-258295",website:"jpn.gov.my",email:"ukksarawak@jpn.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:232,name:"Immigration Department of Malaysia, Sarawak",short:"Immigration",name_my:"Jabatan Imigresen Malaysia, Sarawak",type:"Department",category:"Federal Departments",address:"Level 1 & 2, Bangunan Sultan Iskandar, Jalan Simpang Tiga, 93550 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-230280",phone2:"082-245661",fax:"082-240390",website:"imi.gov.my",email:"hamka@imi.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:233,name:"Federal Secretary Office, Sarawak",short:"FSO",name_my:"Pejabat Setiausaha Persekutuan Sarawak",type:"Department",category:"Federal Departments",address:"Bangunan Sultan Iskandar, Jalan Simpang Tiga, 93300 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-255028",phone2:"082-424432",fax:"082-419452",website:"",email:"upa@supsrwk.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:234,name:"Federal Treasury, Sarawak",short:"Federal Treasury",name_my:"Perbendaharaan Persekutuan Sarawak",type:"Department",category:"Federal Departments",address:"Level 16, Bangunan Sultan Iskandar, 93592 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-421333",phone2:"",fax:"082-424489",website:"treasury.gov.my",email:"pmswk@treasury.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:235,name:"Malaysia Civil Defence Force, Sarawak",short:"CDF",name_my:"Angkatan Pertahanan Awam Malaysia, Sarawak",type:"Department",category:"Federal Departments",address:"Level 11, Bangunan Sultan Iskandar, Jalan Simpang Tiga, 93300 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-256685",phone2:"082-433896",fax:"082-239455",website:"civildefence.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"Official site also publishes 24-hour state hotline 082-370205."},
+  {id:236,name:"Department of National Unity and Integration, Sarawak",short:"NUI",name_my:"Jabatan Perpaduan Negara dan Integrasi Nasional, Sarawak",type:"Department",category:"Federal Departments",address:"Level 9, Bangunan Sultan Iskandar, Jalan Simpang Tiga, P.O. Box 2384, 93300 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-241628",phone2:"",fax:"082-246314",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:237,name:"Valuation and Property Services Department Sarawak",short:"VPS",name_my:"Jabatan Penilaian dan Perkhidmatan Harta Sarawak",type:"Department",category:"Federal Departments",address:"Level 2 & 3, Wisma Hong, No. 202, Batu 2 3/4, Jalan Rock, 93200 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-255116",phone2:"082-255859",fax:"082-426226",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:238,name:"Royal Malaysia Police, Sarawak Contingent Headquarters",short:"RPCH",name_my:"Polis Diraja Malaysia, Ibu Pejabat Kontinjen Sarawak",type:"Department",category:"Federal Departments",address:"Ibu Pejabat Polis Kontinjen Sarawak, Jalan Badruddin, 93560 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-240800",phone2:"082-245522",fax:"082-428355",website:"rmp.gov.my",email:"pjpswk@rmp.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site, TALIKHIDMAT",verified:"yes",notes:"TALIKHIDMAT also shows separate Public Affairs/Pension Branch listing at HQ."},
+  {id:239,name:"Royal Malaysian Customs Department, Sarawak State Headquarters",short:"RMCSH",name_my:"Jabatan Kastam Diraja Malaysia, Ibu Pejabat Negeri Sarawak",type:"Department",category:"Federal Departments",address:"Wisma Kastam, Medan Raya, Jalan Tun Abdul Rahman Yaakub, Petra Jaya, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-472133",phone2:"",fax:"",website:"customs.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"166",source:"TALIKHIDMAT, Official site",verified:"yes",notes:"No public HQ email found on official directory page."},
+  {id:240,name:"Royal Malaysian Customs Department, Pending Port Customs Division",short:"Royal Malaysian",name_my:"Jabatan Kastam Diraja Malaysia, Bahagian Perkastaman Pelabuhan Pending",type:"Department",category:"Federal Departments",address:"Lot 2514, Section 66, KTLD, Level 5, Pelabuhan Pending, Lembaga Pelabuhan Pending, 93710 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-231484",phone2:"082-231485",fax:"082-231858",website:"customs.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Official customs directory lists multiple port lines."},
+  {id:241,name:"Royal Malaysian Customs Department, Tebedu ICQS",short:"RMCTI",name_my:"Jabatan Kastam Diraja Malaysia, Kompleks Kawalan Sempadan Tebedu",type:"Department",category:"Federal Departments",address:"Kompleks Kawalan Sempadan Tebedu (ICQS), 94760 Tebedu, Serian, Sarawak",district:"Tebedu",division:"Serian Division",city:"Tebedu",phone:"082-797023",phone2:"",fax:"082-797023",website:"customs.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:242,name:"Royal Malaysian Customs Department, Biawak ICQS",short:"RMCBI",name_my:"Jabatan Kastam Diraja Malaysia, Sempadan Biawak (ICQS)",type:"Department",category:"Federal Departments",address:"Kompleks Imigresen Biawak, Jalan Lundu-Biawak, 94500 Lundu, Sarawak",district:"Lundu",division:"Kuching Division",city:"Lundu",phone:"082-734164",phone2:"",fax:"",website:"customs.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:243,name:"Malaysia Volunteers Corps Department (RELA), Sarawak",short:"RELA",name_my:"Jabatan Sukarelawan Malaysia (RELA), Sarawak",type:"Department",category:"Federal Departments",address:"Lot 176, Lot 28, Block 10, KCLD, Batu 2 1/2, Jalan Rock, 93200 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-244889",phone2:"",fax:"082-258520",website:"rela.gov.my",email:"prn_sarawak@rela.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"152",source:"TALIKHIDMAT, Google search",verified:"yes",notes:"Email surfaced from RELA Negeri Sarawak listing; TALIKHIDMAT page did not expose email in snippet."},
+  {id:244,name:"Marine Department Malaysia, Sarawak Region",short:"Marine Region",name_my:"Jabatan Laut Malaysia, Wilayah Sarawak",type:"Department",category:"Federal Departments",address:"Kompleks Jabatan Laut Sarawak, Lot 683, Section 66, Jalan Utama, Tanah Puteh, 93619 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-484159",phone2:"082-484335",fax:"082-331778",website:"marine.gov.my",email:"norisal@jls.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Official site",verified:"yes",notes:""},
+  {id:245,name:"Malaysia Border Control and Protection Agency",short:"BCPA",name_my:"Agensi Kawalan dan Perlindungan Sempadan Malaysia",type:"Department",category:"Federal Departments",address:"Aras 1, Setia Perkasa 2, Kompleks Setia Perkasa, Pusat Pentadbiran Kerajaan Persekutuan, 62546 Putrajaya, Malaysia",district:"",division:"",city:"Kuching",phone:"",phone2:"",fax:"",website:"mcba.moha.gov.my",email:"info@mcba.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Federal HQ contact only; no Sarawak branch contact surfaced in official sources reviewed."},
+  {id:246,name:"Universiti Malaysia Sarawak",short:"Universiti",name_my:"Universiti Malaysia Sarawak",type:"Statutory Body",category:"School, IPT & IPTS",address:"94300 Kota Samarahan, Sarawak",district:"Samarahan",division:"Samarahan Division",city:"Samarahan",phone:"082-581000",phone2:"082-581091",fax:"",website:"unimas.my",email:"corporate@unimas.my",adminEmail:"pejabatpendaftar@unimas.my",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Main university line plus Registrar contact."},
+  {id:247,name:"Universiti Teknologi MARA Cawangan Sarawak",short:"UTMC",name_my:"Universiti Teknologi MARA Cawangan Sarawak",type:"Statutory Body",category:"School, IPT & IPTS",address:"Jalan Meranek, 94300 Kota Samarahan, Sarawak",district:"Samarahan",division:"Samarahan Division",city:"Samarahan",phone:"082-677200",phone2:"082-677500",fax:"082-677300",website:"sarawak.uitm.edu.my",email:"korporat_swk@uitm.edu.my",adminEmail:"adminswk@uitm.edu.my",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:248,name:"Politeknik Kuching Sarawak",short:"Politeknik Kuching",name_my:"Politeknik Kuching Sarawak",type:"Statutory Body",category:"School, IPT & IPTS",address:"KM 22, Jalan Matang, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-845596",phone2:"082-845597",fax:"082-845023",website:"poliku.edu.my",email:"poliku.info@poliku.edu.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site, TALIKHIDMAT",verified:"yes",notes:""},
+  {id:249,name:"Politeknik Mukah",short:"Politeknik Mukah",name_my:"Politeknik Mukah",type:"Statutory Body",category:"School, IPT & IPTS",address:"KM 7.5, Jalan Oya, 96400 Mukah, Sarawak",district:"Mukah",division:"Mukah Division",city:"Mukah",phone:"084-874001",phone2:"",fax:"084-874005",website:"pmu.edu.my",email:"pengarah@pmu.edu.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:250,name:"Kolej Komuniti Kuching",short:"KKK",name_my:"Kolej Komuniti Kuching",type:"Statutory Body",category:"School, IPT & IPTS",address:"Lot 3563, Jalan Sultan Tengah, 93050 Petra Jaya, Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-313322",phone2:"",fax:"082-313318",website:"kkkuching.mypolycc.edu.my",email:"admin@kkkg.edu.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:251,name:"Kolej Komuniti Mas Gading",short:"KKMG",name_my:"Kolej Komuniti Mas Gading",type:"Statutory Body",category:"School, IPT & IPTS",address:"Lot 742-750 of Parent Lot 726, Bau Town District, 94000 Bau, Sarawak",district:"Bau",division:"Kuching Division",city:"Bau",phone:"082-763730",phone2:"",fax:"082-763731",website:"kkmasgading.mypolycc.edu.my",email:"kkmg@kkmas.edu.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:252,name:"Kolej Komuniti Miri",short:"KKM",name_my:"Kolej Komuniti Miri",type:"Statutory Body",category:"School, IPT & IPTS",address:"5600, Jalan Permyjaya Utama, Bandar Baru Permyjaya, 98000 Miri, Sarawak",district:"Miri",division:"Miri Division",city:"Miri",phone:"085-653545",phone2:"",fax:"085-653242",website:"kkmiri.mypolycc.edu.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Official site obscures email behind JavaScript; search snippet shows cus@kkmiri.edu.my but not directly rendered on page."},
+  {id:253,name:"Kolej Komuniti Betong",short:"KKB",name_my:"Kolej Komuniti Betong",type:"Statutory Body",category:"School, IPT & IPTS",address:"Lot 2025 (Sublot 16 (Aras Bawah) – Sublot 17), Lot 2026-2027, Block 9 Batu Api Land District (Fasa 2), Bandar Baru Betong, 95700 Betong, Sarawak",district:"Betong",division:"Betong Division",city:"Betong",phone:"083-471830",phone2:"",fax:"083-472831",website:"kkbetong.mypolycc.edu.my/v1/",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Official site hides email behind JavaScript."},
+  {id:254,name:"Kolej Komuniti Sarikei",short:"KKS",name_my:"Kolej Komuniti Sarikei",type:"Statutory Body",category:"School, IPT & IPTS",address:"No. 7 & 8, Lot 2101 & 2102, Block 36, Jalan Sentral, 96100 Sarikei, Sarawak",district:"Sarikei",division:"Sarikei Division",city:"Sarikei",phone:"084-659101",phone2:"",fax:"084-659102",website:"kksarikei.mypolycc.edu.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Official site snippet showed contact lines; email not visible in reviewed snippet."},
+  {id:255,name:"Kolej Komuniti Santubong",short:"KKS",name_my:"Kolej Komuniti Santubong",type:"Statutory Body",category:"School, IPT & IPTS",address:"Sublot 37-40, Blok B, Demak Laut Commercial Centre, Jalan Bako, 93050 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-432691",phone2:"",fax:"082-432684",website:"kksantubong.mypolycc.edu.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site, Google search",verified:"yes",notes:"Phone/fax surfaced from official-linked search results; full contact block did not render cleanly."},
+  {id:256,name:"Curtin University Malaysia",short:"Curtin University",name_my:"Curtin University Malaysia",type:"Statutory Body",category:"School, IPT & IPTS",address:"CDT 250, 98009 Miri, Sarawak",district:"Miri",division:"Miri Division",city:"Miri",phone:"085-630100",phone2:"",fax:"085-630288",website:"curtin.edu.my",email:"enquiries@curtin.edu.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:""},
+  {id:257,name:"Swinburne University of Technology Sarawak Campus",short:"SUTC",name_my:"Universiti Teknologi Swinburne Kampus Sarawak",type:"Statutory Body",category:"School, IPT & IPTS",address:"Jalan Simpang Tiga, 93350 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-415353",phone2:"019-8196353",fax:"082-428353",website:"swinburne.edu.my",email:"study@swinburne.edu.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Course-enquiries contact used as most visible public contact."},
+  {id:258,name:"Kota Samarahan Municipal Council",short:"KSMC",name_my:"Majlis Perbandaran Kota Samarahan",type:"Council",category:"Local Authorities",address:"94300 Kota Samarahan, Sarawak",district:"Samarahan",division:"Samarahan Division",city:"Samarahan",phone:"082-669000",phone2:"",fax:"082-669029",website:"mpks.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found in TALIKHIDMAT snippet."},
+  {id:259,name:"Serian District Council",short:"SDC",name_my:"Majlis Daerah Serian",type:"Council",category:"Local Authorities",address:"No. 1, Jalan Bunga Tanjung, 94700 Serian, Sarawak",district:"Serian",division:"Serian Division",city:"Serian",phone:"082-874154",phone2:"082-874155",fax:"082-874799",website:"seriancouncil.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:260,name:"Sebuyau District Council",short:"SDC",name_my:"Majlis Daerah Sebuyau",type:"Council",category:"Local Authorities",address:"Jalan Pekan Lama, 94850 Sebuyau, Sarawak",district:"Sebuyau",division:"Samarahan Division",city:"Sebuyau",phone:"",phone2:"",fax:"",website:"mdsebuyau.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"no",notes:"TALIKHIDMAT detail page opened but no phone/fax/email rendered in parsed view."},
+  {id:261,name:"Lawas District Council",short:"LDC",name_my:"Majlis Daerah Lawas",type:"Council",category:"Local Authorities",address:"Jalan Trusan ByPass, 98850 Lawas, Sarawak",district:"Lawas",division:"Limbang Division",city:"Lawas",phone:"085-284001",phone2:"085-285387",fax:"085-285485",website:"lawasdc.sarawak.gov.my",email:"lawasdc@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:262,name:"Limbang District Council",short:"LDC",name_my:"Majlis Daerah Limbang",type:"Council",category:"Local Authorities",address:"Majlis Daerah Limbang, P.O. Box 390, 98708 Limbang, Sarawak",district:"Limbang",division:"Limbang Division",city:"Limbang",phone:"085-211288",phone2:"",fax:"085-212577",website:"limbangdc.gov.my",email:"lmndc@limbangdc.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:263,name:"Kapit District Council",short:"KDC",name_my:"Majlis Daerah Kapit",type:"Council",category:"Local Authorities",address:"P.O. Box 57, 96800 Kapit, Sarawak",district:"Kapit",division:"Kapit Division",city:"Kapit",phone:"084-796266",phone2:"",fax:"084-796323",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public website/email found."},
+  {id:264,name:"Dalat and Mukah District Council",short:"DMDC",name_my:"Majlis Daerah Dalat dan Mukah",type:"Council",category:"Local Authorities",address:"Level 1, Pusat Pentadbiran Baru, Jalan Wawasan, P.O. Box 68, 96400 Mukah, Sarawak",district:"Mukah",division:"Mukah Division",city:"Mukah",phone:"084-871622",phone2:"084-871623",fax:"084-871041",website:"",email:"norainm@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:265,name:"Betong District Council",short:"BDC",name_my:"Majlis Daerah Betong",type:"Council",category:"Local Authorities",address:"Bangunan Kubu Rentap, 95700 Betong, Sarawak",district:"Betong",division:"Betong Division",city:"Betong",phone:"083-472124",phone2:"083-472948",fax:"083-472192",website:"",email:"rosaligk@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Agency name inferred from search context around TALIKHIDMAT detail result; verify before mass mailing."},
+  {id:266,name:"Kuching District Office",short:"KDO",name_my:"Pejabat Daerah Kuching",type:"Department",category:"District Office",address:"Level 6, Majma' Tuanku Abdul Halim Mu'adzam Shah, Lorong P. Ramlee 5, 93400 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-524111",phone2:"",fax:"082-507487",website:"kuchingro.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"No public email found."},
+  {id:267,name:"Kuching Resident Office",short:"KRO",name_my:"Pejabat Residen Bahagian Kuching",type:"Department",category:"Resident Offices",address:"Level 7, Menara Pejabat Kompleks Islam Sarawak, Lorong P. Ramlee 5, Off Jalan P. Ramlee, 93400 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"082-275444",phone2:"",fax:"082-507435",website:"kuchingro.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:""},
+  {id:268,name:"Samarahan District Office",short:"SDO",name_my:"Pejabat Daerah Samarahan",type:"Department",category:"District Office",address:"Jalan Datuk Mohd Musa, 94300 Kota Samarahan, Sarawak",district:"Samarahan",division:"Samarahan Division",city:"Samarahan",phone:"082-671105",phone2:"082-671148",fax:"082-671042",website:"samarahanro.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:""},
+  {id:269,name:"Gedong District Office",short:"GDO",name_my:"Pejabat Daerah Gedong",type:"Department",category:"District Office",address:"Jalan Lot RGC Fasa 1, 94800 Simunjan, Sarawak",district:"Gedong",division:"Samarahan Division",city:"Gedong",phone:"082-873133",phone2:"",fax:"082-872448",website:"",email:"pdgedong@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:270,name:"Asajaya District Office",short:"ADO",name_my:"Pejabat Daerah Asajaya",type:"Department",category:"District Office",address:"94600 Asajaya, Sarawak",district:"Asajaya",division:"Samarahan Division",city:"Asajaya",phone:"082-829007",phone2:"",fax:"082-829008",website:"",email:"pdasajaya@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:271,name:"Serian District Office",short:"SDO",name_my:"Pejabat Daerah Serian",type:"Department",category:"District Office",address:"Ground Floor & Level 4, Pusat Pentadbiran Kerajaan Sarawak (Bahagian Serian), Jalan Pengarah Rahun Debak, 94700 Serian, Sarawak",district:"Serian",division:"Serian Division",city:"Serian",phone:"082-892200",phone2:"082-892211",fax:"082-892222",website:"serian.sarawak.gov.my",email:"ivone@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:272,name:"Serian Resident Office",short:"SRO",name_my:"Pejabat Residen Bahagian Serian",type:"Department",category:"Resident Offices",address:"Level 4 & 5, Pusat Pentadbiran Kerajaan Sarawak (Bahagian Serian), Jalan Pengarah Rahun Debak, 94700 Serian, Sarawak",district:"Serian",division:"Serian Division",city:"Serian",phone:"082-892000",phone2:"",fax:"082-892029",website:"serian.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"No public email found."},
+  {id:273,name:"Tebedu District Office",short:"TDO",name_my:"Pejabat Daerah Tebedu",type:"Department",category:"District Office",address:"94760 Tebedu, Serian, Sarawak",district:"Tebedu",division:"Serian Division",city:"Tebedu",phone:"082-791111",phone2:"",fax:"082-791100",website:"",email:"taddytb@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:274,name:"Siburan District Office",short:"SDO",name_my:"Pejabat Daerah Siburan",type:"Department",category:"District Office",address:"Jalan Kuching-Serian, 94200 Siburan, Sarawak",district:"Siburan",division:"Kuching Division",city:"Siburan",phone:"082-865000",phone2:"",fax:"082-863594",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:275,name:"Lundu District Office",short:"LDO",name_my:"Pejabat Daerah Lundu",type:"Department",category:"District Office",address:"Jalan Sekambal, 94500 Lundu, Sarawak",district:"Lundu",division:"Kuching Division",city:"Lundu",phone:"082-735008",phone2:"",fax:"082-735599",website:"",email:"syafiiea@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:276,name:"Sebuyau District Office",short:"SDO",name_my:"Pejabat Daerah Sebuyau",type:"Department",category:"District Office",address:"Jalan Kampung Baru, 94850 Sebuyau, Sarawak",district:"Sebuyau",division:"Samarahan Division",city:"Sebuyau",phone:"083-467121",phone2:"",fax:"083-467213",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:277,name:"Bintulu District Office",short:"BDO",name_my:"Pejabat Daerah Bintulu",type:"Department",category:"District Office",address:"Ground Floor, Wisma Residen, Jalan Pisang Keling, Off Jalan Tun Razak, 97000 Bintulu, Sarawak",district:"Bintulu",division:"Bintulu Division",city:"Bintulu",phone:"086-331896",phone2:"",fax:"086-338441",website:"",email:"latifahp@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:278,name:"Bintulu Resident Office",short:"BRO",name_my:"Pejabat Residen Bahagian Bintulu",type:"Department",category:"Resident Offices",address:"Level 1, Wisma Residen, Jalan Pisang Keling, Off Jalan Tun Razak, 97000 Bintulu, Sarawak",district:"Bintulu",division:"Bintulu Division",city:"Bintulu",phone:"086-331758",phone2:"",fax:"086-336620",website:"bintuluro.sarawak.gov.my",email:"shahrizan2@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:""},
+  {id:279,name:"Sebauh District Office",short:"SDO",name_my:"Pejabat Daerah Sebauh",type:"Department",category:"District Office",address:"KM 1, Jalan Sebauh-Bintulu, 97100 Sebauh, Sarawak",district:"Sebauh",division:"Bintulu Division",city:"Sebauh",phone:"086-422118",phone2:"",fax:"086-422366",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:280,name:"Tatau District Office",short:"TDO",name_my:"Pejabat Daerah Tatau",type:"Department",category:"District Office",address:"KM 60, Pasar Tatau, 97200 Tatau, Sarawak",district:"Tatau",division:"Bintulu Division",city:"Tatau",phone:"086-584617",phone2:"",fax:"086-584718",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:281,name:"Miri District Office",short:"MDO",name_my:"Pejabat Daerah Miri",type:"Department",category:"District Office",address:"Level 5, Kompleks Islam Sarawak Miri, 98000 Miri, Sarawak",district:"Miri",division:"Miri Division",city:"Miri",phone:"085-414394",phone2:"",fax:"085-422146",website:"",email:"do.miri@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:282,name:"Marudi District Office",short:"MDO",name_my:"Pejabat Daerah Marudi",type:"Department",category:"District Office",address:"Jalan Kubu, 98050 Marudi, Sarawak",district:"Marudi",division:"Miri Division",city:"Marudi",phone:"085-755211",phone2:"",fax:"",website:"marudidistrict.sarawak.gov.my",email:"do.marudi@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"TALIKHIDMAT lists no fax."},
+  {id:283,name:"Beluru District Office",short:"BDO",name_my:"Pejabat Daerah Beluru",type:"Department",category:"District Office",address:"Jalan Bangunan Kerajaan, 98050 Baram, Sarawak",district:"Beluru",division:"Miri Division",city:"Beluru",phone:"085-718348",phone2:"",fax:"085-718349",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:284,name:"Sibuti Sub-District Office",short:"SSO",name_my:"Pejabat Daerah Kecil Sibuti",type:"Department",category:"Sub-District Offices",address:"98150 Bekenu, Miri, Sarawak",district:"Sibuti",division:"Miri Division",city:"Sibuti",phone:"085-719002",phone2:"",fax:"085-719001",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:285,name:"Mukah District Office",short:"MDO",name_my:"Pejabat Daerah Mukah",type:"Department",category:"District Office",address:"Ground Floor, Menara Pehin Setia Raja, 96400 Mukah, Sarawak",district:"Mukah",division:"Mukah Division",city:"Mukah",phone:"084-871963",phone2:"",fax:"084-872117",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:286,name:"Dalat District Office",short:"DDO",name_my:"Pejabat Daerah Dalat",type:"Department",category:"District Office",address:"96300 Dalat, Sarawak",district:"Dalat",division:"Mukah Division",city:"Dalat",phone:"084-864219",phone2:"",fax:"084-864435",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:287,name:"Tanjung Manis District Office",short:"TMDO",name_my:"Pejabat Daerah Tanjung Manis",type:"Department",category:"District Office",address:"Level 13, Pusat Pentadbiran Kerajaan Sarawak (Tanjung Manis), 96150 Tanjung Manis, Sarawak",district:"Tanjung Manis",division:"Mukah Division",city:"Tanjung Manis",phone:"011-2094096",phone2:"",fax:"084-815355",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:288,name:"Balingian Sub-District Office",short:"BSO",name_my:"Pejabat Daerah Kecil Balingian",type:"Department",category:"Sub-District Offices",address:"96350 Balingian, Sarawak",district:"Balingian",division:"Mukah Division",city:"Balingian",phone:"086-484478",phone2:"",fax:"086-484363",website:"",email:"555999@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Generic sarawak.gov.my mailbox only."},
+  {id:289,name:"Sibu District Office",short:"SDO",name_my:"Pejabat Daerah Sibu",type:"Department",category:"District Office",address:"Level 4, Kompleks Islam Sarawak Sibu, Jalan Awang Ramli Amit, 96000 Sibu, Sarawak",district:"Sibu",division:"Sibu Division",city:"Sibu",phone:"084-319687",phone2:"084-318591",fax:"084-337022",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:290,name:"Sibu Resident Office",short:"SRO",name_my:"Pejabat Residen Bahagian Sibu",type:"Department",category:"Resident Offices",address:"Level 5, Kompleks Islam Sarawak Sibu, Jalan Awang Ramli Amit, 96000 Sibu, Sarawak",district:"Sibu",division:"Sibu Division",city:"Sibu",phone:"084-321963",phone2:"",fax:"084-317214",website:"siburo.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"No public email found."},
+  {id:291,name:"Kanowit District Office",short:"KDO",name_my:"Pejabat Daerah Kanowit",type:"Department",category:"District Office",address:"Jalan Kanowit Durin, 96700 Kanowit, Sarawak",district:"Kanowit",division:"Sibu Division",city:"Kanowit",phone:"084-752939",phone2:"",fax:"084-752937",website:"",email:"nizamme@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:292,name:"Selangau District Office",short:"SDO",name_my:"Pejabat Daerah Selangau",type:"Department",category:"District Office",address:"KM 80, Jalan Sibu-Bintulu, 96010 Selangau, Sarawak",district:"Selangau",division:"Sibu Division",city:"Selangau",phone:"084-891231",phone2:"084-891146",fax:"084-891380",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:293,name:"Sarikei District Office",short:"SDO",name_my:"Pejabat Daerah Sarikei",type:"Department",category:"District Office",address:"Level 2, Pusat Pentadbiran Kerajaan Sarawak Bahagian Sarikei, Jalan Nenas, Bandar Sarikei, 96100 Sarikei, Sarawak",district:"Sarikei",division:"Sarikei Division",city:"Sarikei",phone:"084-656725",phone2:"",fax:"084-651012",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:294,name:"Meradong District Office",short:"MDO",name_my:"Pejabat Daerah Meradong",type:"Department",category:"District Office",address:"Jalan Mahkamah, 96500 Bintangor, Sarawak",district:"Meradong",division:"Sarikei Division",city:"Meradong",phone:"084-693245",phone2:"",fax:"084-692578",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:295,name:"Pakan District Office",short:"PDO",name_my:"Pejabat Daerah Pakan",type:"Department",category:"District Office",address:"96510 Pakan, Sarawak",district:"Pakan",division:"Sarikei Division",city:"Pakan",phone:"",phone2:"",fax:"",website:"",email:"kelim@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"no",notes:"Email found but no public phone/fax surfaced in reviewed snippet."},
+  {id:296,name:"Julau District Office",short:"JDO",name_my:"Pejabat Daerah Julau",type:"Department",category:"District Office",address:"Jalan SMK Julau, 96600 Julau, Sarawak",district:"Julau",division:"Sarikei Division",city:"Julau",phone:"084-734371",phone2:"",fax:"084-734449",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:297,name:"Kapit District Office",short:"KDO",name_my:"Pejabat Daerah Kapit",type:"Department",category:"District Office",address:"Level 2, Kompleks Kerajaan Negeri, Jalan Bleteh, 96800 Kapit, Sarawak",district:"Kapit",division:"Kapit Division",city:"Kapit",phone:"084-796322",phone2:"",fax:"084-797625",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:298,name:"Kapit Resident Office",short:"KRO",name_my:"Pejabat Residen Bahagian Kapit",type:"Department",category:"Resident Offices",address:"Level 8 & 9, Kompleks Kerajaan Negeri, Jalan Bleteh, 96800 Kapit, Sarawak",district:"Kapit",division:"Kapit Division",city:"Kapit",phone:"084-796230",phone2:"",fax:"084-796932",website:"kapitro.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"No public email found."},
+  {id:299,name:"Belaga District Office",short:"BDO",name_my:"Pejabat Daerah Belaga",type:"Department",category:"District Office",address:"96900 Belaga, Sarawak",district:"Belaga",division:"Kapit Division",city:"Belaga",phone:"086-461326",phone2:"086-461315",fax:"086-461435",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Third listed line 086-461339 omitted."},
+  {id:300,name:"Bukit Mabong District Office",short:"BMDO",name_my:"Pejabat Daerah Bukit Mabong",type:"Department",category:"District Office",address:"Level 4, Kompleks Kerajaan Negeri, Jalan Bleteh, 96800 Kapit, Sarawak",district:"Bukit Mabong",division:"Kapit Division",city:"Bukit Mabong",phone:"084-796059",phone2:"",fax:"084-796119",website:"",email:"tracynyipa@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:301,name:"Sri Aman District Office",short:"SADO",name_my:"Pejabat Daerah Sri Aman",type:"Department",category:"District Office",address:"Jalan Abang Aing, 95000 Sri Aman, Sarawak",district:"Sri Aman",division:"Sri Aman Division",city:"Sri Aman",phone:"083-311500",phone2:"",fax:"083-321703",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:302,name:"Sri Aman Resident Office",short:"SARO",name_my:"Pejabat Residen Bahagian Sri Aman",type:"Department",category:"Resident Offices",address:"Jalan Astana, Bandar Simanggang, 95000 Sri Aman, Sarawak",district:"Sri Aman",division:"Sri Aman Division",city:"Sri Aman",phone:"083-320029",phone2:"",fax:"083-320568",website:"sriamanro.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"No public email found."},
+  {id:303,name:"Lubok Antu District Office",short:"LADO",name_my:"Pejabat Daerah Lubok Antu",type:"Department",category:"District Office",address:"95900 Lubok Antu, Sarawak",district:"Lubok Antu",division:"Sri Aman Division",city:"Lubok Antu",phone:"083-584108",phone2:"",fax:"083-584141",website:"sriaman.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:304,name:"Engkilili Sub-District Office",short:"ESO",name_my:"Pejabat Daerah Kecil Engkilili",type:"Department",category:"Sub-District Offices",address:"Jalan Selindong, 95800 Engkilili, Sarawak",district:"Engkilili",division:"Sri Aman Division",city:"Engkilili",phone:"083-563001",phone2:"",fax:"083-563079",website:"",email:"barayanl@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:305,name:"Pantu District Office",short:"PDO",name_my:"Pejabat Daerah Pantu",type:"Department",category:"District Office",address:"Daerah Pantu, 95000 Sri Aman, Sarawak",district:"Pantu",division:"Sri Aman Division",city:"Pantu",phone:"083-308821",phone2:"",fax:"083-308565",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:306,name:"Betong Resident Office",short:"BRO",name_my:"Pejabat Residen Bahagian Betong",type:"Department",category:"Resident Offices",address:"Levels 2-3, Menara Utama, Kompleks Pejabat Kerajaan Negeri Betong, Kawasan Bandar Baru Betong, Jalan Setia Raja, 95700 Betong, Sarawak",district:"Betong",division:"Betong Division",city:"Betong",phone:"083-472766",phone2:"083-472866",fax:"083-472966",website:"betong.sarawak.gov.my",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT, Pustaka Sarawak",verified:"yes",notes:"No public email found."},
+  {id:307,name:"Saratok District Office",short:"SDO",name_my:"Pejabat Daerah Saratok",type:"Department",category:"District Office",address:"Lot 42, Saratok Town District, Jalan Muhibbah, 95400 Saratok, Sarawak",district:"Saratok",division:"Betong Division",city:"Saratok",phone:"083-436103",phone2:"",fax:"083-436833",website:"betong.sarawak.gov.my",email:"saratokdo@sarawak.gov.my",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:""},
+  {id:308,name:"Limbang District Office",short:"LDO",name_my:"Pejabat Daerah Limbang",type:"Department",category:"District Office",address:"Level 6, Bangunan Limbang Plaza, Jalan Buangsiol, 98700 Limbang, Sarawak",district:"Limbang",division:"Limbang Division",city:"Limbang",phone:"085-202115",phone2:"",fax:"085-215003",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"No public email found."},
+  {id:309,name:"Lawas District Office",short:"LDO",name_my:"Pejabat Daerah Lawas",type:"Department",category:"District Office",address:"Jalan Gaya, 98850 Lawas, Sarawak",district:"Lawas",division:"Limbang Division",city:"Lawas",phone:"085-283103",phone2:"085-285303",fax:"085-284553",website:"",email:"",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"TALIKHIDMAT",verified:"yes",notes:"Third listed line 085-283105 omitted."},
+  {id:310,name:"Sarawak Energy SESCO Customer Care",short:"SESCO",name_my:"Perkhidmatan Pelanggan SESCO Sarawak Energy",type:"GLC",category:"State Government Link Company",address:"Wisma SESCO, Petra Jaya, 93673 Kuching, Sarawak",district:"Kuching",division:"Kuching Division",city:"Kuching",phone:"1300-88-3111",phone2:"",fax:"082-313588",website:"sarawakenergy.com",email:"customercare@sarawakenergy.com",adminEmail:"",procurementEmail:"",talikhidmatId:"",source:"Official site",verified:"yes",notes:"Customer care contact; useful for routing but less relevant for procurement."},
+];
+
+// Custom agencies are stored in localStorage and merged with BUILTIN_AGENCIES.
+// Custom agency IDs start at 10000 to avoid colliding with builtins.
+let customAgencies = JSON.parse(localStorage.getItem('tms_custom_agencies') || '[]');
+let AGENCIES = [];
+function rebuildAgencies() {
+  AGENCIES = BUILTIN_AGENCIES.concat(customAgencies);
+}
+rebuildAgencies();
+
+// ── GMAIL CONFIG ─────────────────────────────────────────
+const GMAIL_CLIENT_ID = '274389426651-6c2ob23k9pioemloo8bdvl9qhrl1kp44.apps.googleusercontent.com';
+const GMAIL_SCOPES = 'https://www.googleapis.com/auth/gmail.send';
+let gmailToken = null;
+let tokenClient = null;
+
+function initGmailAuth() {
+  if (typeof google === 'undefined') {
+    setTimeout(initGmailAuth, 500);
+    return;
+  }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GMAIL_CLIENT_ID,
+    scope: GMAIL_SCOPES,
+    callback: (resp) => {
+      if (resp.error) { showToast('Gmail auth error: ' + resp.error); return; }
+      gmailToken = resp.access_token;
+      localStorage.setItem('tms_gmail_token', gmailToken);
+      updateGmailUI(true);
+      showToast('Gmail connected ✓');
+    }
+  });
+  const saved = localStorage.getItem('tms_gmail_token');
+  if (saved) { gmailToken = saved; updateGmailUI(true); }
+}
+
+function gmailSignIn() {
+  if (!tokenClient) { showToast('Google auth not loaded yet, try again'); return; }
+  tokenClient.requestAccessToken();
+}
+
+function gmailSignOut() {
+  if (gmailToken) google.accounts.oauth2.revoke(gmailToken);
+  gmailToken = null;
+  localStorage.removeItem('tms_gmail_token');
+  updateGmailUI(false);
+  showToast('Gmail disconnected');
+}
+
+function updateGmailUI(connected) {
+  const dot = document.getElementById('smtp-dot');
+  const label = document.getElementById('smtp-label');
+  const authBtn = document.getElementById('gmail-auth-btn');
+  const statusCard = document.getElementById('gmail-status-card');
+  const connectBtn = document.getElementById('gmail-connect-btn');
+  const disconnectBtn = document.getElementById('gmail-disconnect-btn');
+
+  if (connected) {
+    dot.classList.add('on');
+    label.textContent = 'Gmail connected';
+    if (authBtn) { authBtn.innerHTML = '<span style="color:#34d399">✓</span> Gmail connected'; authBtn.style.opacity='0.7'; }
+    if (statusCard) statusCard.innerHTML = '<span style="color:#059669">✓ Connected — sends as The Men Shop &lt;info@tmst.my&gt;</span>';
+    if (connectBtn) connectBtn.style.display = 'none';
+    if (disconnectBtn) disconnectBtn.style.display = 'inline-flex';
+  } else {
+    dot.classList.remove('on');
+    label.textContent = 'Gmail not connected';
+    if (authBtn) { authBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Connect Gmail'; authBtn.style.opacity='1'; }
+    if (statusCard) statusCard.textContent = 'Not connected — click "Connect Gmail" in the sidebar.';
+    if (connectBtn) connectBtn.style.display = 'inline-flex';
+    if (disconnectBtn) disconnectBtn.style.display = 'none';
+  }
+}
+
+// ── STORAGE ───────────────────────────────────────────────
+const LS = {
+  get:(k,d={})=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}},
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
+};
+
+let crm = LS.get('tms_crm',{});
+let cfg = LS.get('tms_cfg',{apikey:'',context:'We are The Men Shop (tmst.my), a premium tailor in Kuching, Sarawak. We have dressed politicians, government officials, and corporate clients for over two decades. We are known for quality corporate shirts and uniforms across government agencies.',tone:'professional warm',signoff:'The Men Shop Team'});
+let activity = LS.get('tms_activity',[]);
+let templates = LS.get('tms_templates',[]);
+let currentId = null;
+let currentTemplateId = null;
+let batchFilter = "not-contacted";
+let selectedAgencies = new Set();
+let emailAttachments = [];
+
+
+
+
+// ── TEXT FORMATTING ───────────────────────────────────────
+function formatText(textareaId, format) {
+  const textarea = document.getElementById(textareaId);
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const selectedText = textarea.value.substring(start, end);
+  
+  if (!selectedText) {
+    alert('Please select some text first');
+    return;
+  }
+  
+  let formattedText = '';
+  
+  switch(format) {
+    case 'bold':
+      formattedText = `<strong>${selectedText}</strong>`;
+      break;
+    case 'italic':
+      formattedText = `<em>${selectedText}</em>`;
+      break;
+    case 'underline':
+      formattedText = `<u>${selectedText}</u>`;
+      break;
+    case 'link':
+      const url = prompt('Enter URL (e.g., https://example.com):');
+      if (!url) return;
+      formattedText = `<a href="${url}">${selectedText}</a>`;
+      break;
+    case 'list':
+      const items = selectedText.split('\n').filter(item => item.trim());
+      formattedText = '<ul>\n' + items.map(item => `  <li>${item.trim()}</li>`).join('\n') + '\n</ul>';
+      break;
+  }
+  
+  // Replace selected text with formatted version
+  const newValue = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+  textarea.value = newValue;
+  
+  // Set cursor position after inserted text
+  const newCursorPos = start + formattedText.length;
+  textarea.setSelectionRange(newCursorPos, newCursorPos);
+  textarea.focus();
+}
+
+function getD(id){return crm[id]||{status:'Not Contacted',pic:'',picPhone:'',picEmail:'',picTitle:'',notes:'',date:'',log:[]}}
+function setD(id,d){crm[id]=d;LS.set('tms_crm',crm)}
+function addLog(id,msg){const d=getD(id);d.log=d.log||[];d.log.unshift({msg,time:new Date().toLocaleString('en-MY')});setD(id,d)}
+function addActivity(msg){activity.unshift({msg,time:new Date().toLocaleString('en-MY')});if(activity.length>20)activity.pop();LS.set('tms_activity',activity)}
+
+const STATUS_CLASS = {'Not Contacted':'s-not','Emailed':'s-emailed','Replied':'s-replied','Called':'s-called','Followed Up':'s-followed','Converted':'s-converted'};
+
+// ── NAV ───────────────────────────────────────────────────
+function nav(btn, panel) {
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+panel).classList.add('active');
+  const titles = {dashboard:'Dashboard',agencies:'Agencies',templates:'Email Templates',settings:'Settings'};
+  document.getElementById('topbar-title').textContent = titles[panel];
+  if(panel==='dashboard') renderDashboard();
+  if(panel==='agencies') renderTable();
+  if(panel==='templates') renderTemplates();
+  if(panel==='settings') loadSettings();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+function renderDashboard() {
+  const counts = {'Not Contacted':0,'Emailed':0,'Replied':0,'Called':0,'Followed Up':0,'Converted':0};
+  AGENCIES.forEach(a=>{const s=getD(a.id).status||'Not Contacted';counts[s]=(counts[s]||0)+1});
+  const total = AGENCIES.length;
+  const contacted = total - counts['Not Contacted'];
+  const pct = Math.round((contacted/total)*100);
+  
+  document.getElementById('dash-cards').innerHTML = `
+    <div class="dash-card c-gray"><div class="dc-label">Total Agencies</div><div class="dc-value">${total}</div></div>
+    <div class="dash-card c-blue"><div class="dc-label">Emailed</div><div class="dc-value">${counts['Emailed']}</div></div>
+    <div class="dash-card c-amber"><div class="dc-label">Replied</div><div class="dc-value">${counts['Replied']}</div></div>
+    <div class="dash-card c-green"><div class="dc-label">Called</div><div class="dc-value">${counts['Called']}</div></div>
+    <div class="dash-card c-purple"><div class="dc-label">Followed Up</div><div class="dc-value">${counts['Followed Up']}</div></div>
+    <div class="dash-card c-teal"><div class="dc-label">Converted</div><div class="dc-value">${counts['Converted']}</div></div>
+  `;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-text').textContent = `${contacted} of ${total} contacted`;
+  document.getElementById('prog-pct').textContent = pct+'%';
+  
+  const actList = activity.slice(0,10).map(a=>`
+    <div class="activity-item">
+      <div class="activity-dot"></div>
+      <div class="activity-text">${a.msg}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  `).join('') || '<div style="font-size:13px;color:var(--text3);padding:12px 0">No activity yet.</div>';
+  document.getElementById('activity-list').innerHTML = actList;
+  
+  document.getElementById('sb-stats').innerHTML = `
+    <div class="sb-stat"><span class="sl">Agencies</span><span class="sv">${total}</span></div>
+    <div class="sb-stat"><span class="sl">Templates</span><span class="sv">${templates.length}</span></div>
+  `;
+}
+
+// ── TABLE ─────────────────────────────────────────────────
+function renderTable() {
+  const search = document.getElementById('search-box').value.toLowerCase();
+  const statusFilter = document.getElementById('filter-status').value;
+  const typeFilter = document.getElementById('filter-type').value;
+  
+  let filtered = AGENCIES.filter(a=>{
+    const d = getD(a.id);
+    const matchSearch = !search || a.name.toLowerCase().includes(search) || a.short.toLowerCase().includes(search) || a.email.toLowerCase().includes(search);
+    const matchStatus = !statusFilter || (d.status||'Not Contacted')===statusFilter;
+    const matchType = !typeFilter || a.type===typeFilter;
+    return matchSearch && matchStatus && matchType;
+  });
+  
+  const rows = filtered.map(a=>{
+    const d = getD(a.id);
+    const st = d.status || 'Not Contacted';
+    const isCustom = a.id >= 10000;
+    const email = a.email || '';
+    const noEmail = !email;
+    const is555 = email.includes('555999');
+    const verPoor = a.verified === 'no' || a.verified === 'pattern';
+    let emailBadge = '';
+    if (noEmail) emailBadge = '<span style="color:#b91c1c;font-size:11px;margin-left:6px" title="No email — add one">⚠ no email</span>';
+    else if (is555) emailBadge = '<span style="color:#92400e;font-size:11px;margin-left:6px" title="Routes through central TALIKHIDMAT inbox — call first, don\'t cold email">⚠ central routing</span>';
+    else if (verPoor) emailBadge = '<span style="color:#92400e;font-size:11px;margin-left:6px" title="Unverified — confirm on first call">⚠ unverified</span>';
+    const customBadge = isCustom ? '<span style="background:var(--gold3);color:var(--navy);font-size:10px;padding:1px 6px;border-radius:99px;margin-left:6px">custom</span>' : '';
+    const phoneDisplay = a.phone || '—';
+    const emailDisplay = email || '—';
+    const emailDisabled = (noEmail || is555);
+    return `<tr onclick="openDetail(${a.id})" style="cursor:pointer">
+      <td><div class="agency-name">${a.name}${customBadge}</div><div class="agency-meta">${a.short} · ${emailDisplay}${emailBadge}</div></td>
+      <td><span class="badge badge-type">${a.type}</span></td>
+      <td>${a.city||a.district||''}</td>
+      <td><span class="badge ${STATUS_CLASS[st]}">${st}</span></td>
+      <td style="font-size:12px;color:var(--text2)">${phoneDisplay}</td>
+      <td><button class="btn btn-sm btn-gold" onclick="quickEmail(${a.id});event.stopPropagation()" ${emailDisabled?'disabled title="No valid email — call instead"':''}>
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        Email
+      </button></td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('table-container').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Agency</th><th>Type</th><th>District</th><th>Status</th><th>Phone</th><th></th>
+      </tr></thead>
+      <tbody>${rows||'<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">No agencies found</td></tr>'}</tbody>
+    </table>
+  `;
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────
+function openDetail(id) {
+  currentId = id;
+  const a = AGENCIES.find(x=>x.id===id);
+  const d = getD(id);
+  document.getElementById('dp-name').textContent = a.name;
+  const subParts = [a.short, a.type, a.district||a.city, a.division].filter(Boolean);
+  document.getElementById('dp-sub').textContent = subParts.join(' · ');
+
+  // Build contact info box
+  const fmt = (label, val, opts) => {
+    if (!val) return '';
+    opts = opts || {};
+    const icon = opts.icon || '';
+    const link = opts.link ? `<a href="${opts.link}" target="_blank" style="color:var(--navy);text-decoration:underline">${val}</a>` : val;
+    return `<div style="margin-bottom:4px"><span style="color:var(--text3);display:inline-block;width:90px;font-size:11px;text-transform:uppercase;letter-spacing:.05em">${icon}${label}</span> ${link}</div>`;
+  };
+  let info = '';
+  if (a.phone) info += fmt('Phone', a.phone, {link:'tel:'+a.phone.replace(/\s/g,'')});
+  if (a.phone2) info += fmt('Phone 2', a.phone2, {link:'tel:'+a.phone2.replace(/\s/g,'')});
+  if (a.fax) info += fmt('Fax', a.fax);
+  if (a.email) {
+    const is555 = a.email.includes('555999');
+    const warn = is555 ? ' <span style="color:#92400e;font-size:11px">(central routing — call first)</span>' : '';
+    info += fmt('Email', a.email + warn, {link:'mailto:'+a.email});
+  }
+  if (a.adminEmail) info += fmt('Admin', a.adminEmail, {link:'mailto:'+a.adminEmail});
+  if (a.procurementEmail) info += fmt('Procure.', a.procurementEmail, {link:'mailto:'+a.procurementEmail});
+  if (a.website) {
+    const url = a.website.startsWith('http') ? a.website : 'https://'+a.website;
+    info += fmt('Website', a.website, {link:url});
+  }
+  if (a.address) info += fmt('Address', a.address);
+  if (a.talikhidmatId) {
+    const url = `https://talikhidmat.sarawak.gov.my/talikhidmat/web/home/agency_view/${a.talikhidmatId}`;
+    info += fmt('Talikhidmat', 'View on TALIKHIDMAT', {link:url});
+  }
+  if (a.verified) {
+    const colors = {yes:'#166534', pattern:'#92400e', no:'#b91c1c'};
+    const c = colors[a.verified] || '#4a5870';
+    info += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)">Verified: <span style="color:${c};font-weight:600">${a.verified}</span>${a.source?' · Source: '+a.source:''}</div>`;
+  }
+  if (a.notes) info += `<div style="margin-top:6px;font-size:11px;color:var(--text3);font-style:italic">${a.notes}</div>`;
+  if (!info) info = '<div style="color:var(--text3);font-style:italic">No contact info on file. Click the edit icon above to add.</div>';
+  document.getElementById('dp-contact-info').innerHTML = info;
+
+  document.getElementById('dp-status').value = d.status||'Not Contacted';
+  document.getElementById('dp-date').value = d.date||'';
+  document.getElementById('dp-pic').value = d.pic||'';
+  document.getElementById('dp-pic-phone').value = d.picPhone||'';
+  document.getElementById('dp-pic-email').value = d.picEmail||'';
+  document.getElementById('dp-pic-title').value = d.picTitle||'';
+  document.getElementById('dp-notes').value = d.notes||'';
+  const logs = (d.log||[]).map(l=>`<div class="log-item"><div class="log-time">${l.time}</div><div>${l.msg}</div></div>`).join('');
+  document.getElementById('dp-log').innerHTML = logs || '<div style="font-size:12px;color:var(--text3);padding:8px 0">No activity yet.</div>';
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail(e) {
+  if(e.target.id==='detail-overlay') closeDetailPanel();
+}
+
+function closeDetailPanel() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+function saveDetail() {
+  if(!currentId) return;
+  const d = getD(currentId);
+  d.status = document.getElementById('dp-status').value;
+  d.date = document.getElementById('dp-date').value;
+  d.pic = document.getElementById('dp-pic').value.trim();
+  d.picPhone = document.getElementById('dp-pic-phone').value.trim();
+  d.picEmail = document.getElementById('dp-pic-email').value.trim();
+  d.picTitle = document.getElementById('dp-pic-title').value.trim();
+  d.notes = document.getElementById('dp-notes').value.trim();
+  setD(currentId, d);
+  renderTable();
+  renderDashboard();
+}
+
+// ── SETTINGS ──────────────────────────────────────────────
+function loadSettings() {
+  document.getElementById('s-apikey').value = cfg.apikey||'';
+  document.getElementById('s-context').value = cfg.context||'';
+  document.getElementById('s-tone').value = cfg.tone||'professional warm';
+  document.getElementById('s-signoff').value = cfg.signoff||'';
+}
+
+function saveAI(){
+  cfg.apikey=document.getElementById('s-apikey').value.trim();
+  LS.set('tms_cfg',cfg);
+  document.getElementById('ai-save-msg').textContent='✓ API key saved';
+  setTimeout(()=>document.getElementById('ai-save-msg').textContent='',3000);
+}
+
+function saveDefaultTemplate(){
+  cfg.context=document.getElementById('s-context').value.trim();
+  cfg.tone=document.getElementById('s-tone').value;
+  cfg.signoff=document.getElementById('s-signoff').value.trim();
+  LS.set('tms_cfg',cfg);
+  document.getElementById('tpl-save-msg').textContent='✓ Template saved';
+  setTimeout(()=>document.getElementById('tpl-save-msg').textContent='',3000);
+}
+
+
+
+// ── AI EMAIL ──────────────────────────────────────────────
+async function generateEmailContent(agency, customPrompt = '') {
+  const apikey = cfg.apikey;
+  if(!apikey) return {
+    subject:`Custom Neckties for ${agency.name} — The Men Shop`,
+    body:`<p>Dear Procurement / HR Team,</p><p>I am reaching out from The Men Shop (tmst.my), a professional tailor based in Kuching, Sarawak. Over the years, we have had the privilege of serving numerous government agencies and elected officials with quality corporate shirts and uniforms.</p><p>We would like to introduce our premium custom neckties, available in your agency's official colours with your crest or logo woven in. These make excellent corporate gifts, staff uniform additions, or event mementos — and as actual tailors, we bring a level of craft and attention to detail that a typical gift shop cannot.</p><p>We would love to arrange a brief meeting or send samples for your consideration. Please feel free to reach us at info@tmst.my or visit tmst.my.</p><p>Warm regards,<br>${cfg.signoff||'The Men Shop Team'}<br>info@tmst.my | tmst.my</p>`
+  };
+
+  let prompt = `You are writing a personalized B2B cold email for The Men Shop.
+
+Background: ${cfg.context}
+
+Write a ${cfg.tone} cold email to: ${agency.name} (${agency.type}, ${agency.city}, Sarawak, Malaysia).
+
+Key points to weave in naturally:
+- The Men Shop is a real tailor — not just a gift shop — which gives them credibility in garment quality
+- Custom neckties available in agency colours, with logo options (embroidered or woven)
+- Suitable for: corporate gifts, official uniforms, event giveaways, VIP gifts
+- Invite them to inquire, request a catalogue, or arrange a meeting
+- Keep it under 160 words — concise and respectful of their time
+- Use Malaysian English naturally (e.g. "do not hesitate", "we look forward to hearing from you")
+- Sign off as: ${cfg.signoff||'The Men Shop Team'}`;
+
+  if (customPrompt.trim()) {
+    prompt += `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${customPrompt.trim()}`;
+  }
+
+  prompt += `\n\nRespond ONLY with valid JSON (no markdown, no backticks):\n{"subject":"subject here","body":"email body in HTML format with <p> tags"}`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apikey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})
+  });
+  const json = await resp.json();
+  const text = json.content[0].text.replace(/```json|```/g,'').trim();
+  return JSON.parse(text);
+}
+
+// ── EMAIL MODAL ───────────────────────────────────────────
+function quickEmail(id){currentId=id;openEmailSingle()}
+
+function openEmailSingle(){
+  const a = AGENCIES.find(x=>x.id===currentId);
+  const d = getD(currentId);
+  
+  // Populate template selector
+  const templateSelect = document.getElementById('em-template-select');
+  templateSelect.innerHTML = '<option value="">— Start from scratch or choose a template —</option>' + 
+    templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  
+  document.getElementById('em-to').value = d.picEmail||a.email;
+  document.getElementById('em-subject').value = '';
+  document.getElementById('em-custom-prompt').value = '';
+  document.getElementById('em-status').innerHTML = '';
+  emailAttachments = [];
+  document.getElementById('attachment-list').innerHTML = '';
+  
+  document.getElementById('email-modal').classList.add('open');
+  
+  // Initialize TinyMCE after modal opens
+  setTimeout(() => { generateEmail(); }, 100);
+}
+
+
+// Clean up visible HTML tags in template body
+function cleanupTemplateBody(body) {
+  if (!body) return '';
+  
+  // If body has visible <p>, </p>, <br> tags as text, clean them
+  let cleaned = body;
+  
+  // Remove visible paragraph tags
+  cleaned = cleaned.replace(/<p>/gi, '');
+  cleaned = cleaned.replace(/<\/p>/gi, '\n\n');
+  
+  // Remove visible br tags (but keep as line breaks)
+  cleaned = cleaned.replace(/<br\s*\/?>/gi, '\n');
+  
+  // Remove any other visible HTML tags
+  cleaned = cleaned.replace(/<[^>]+>/g, '');
+  
+  return cleaned;
+}
+
+function loadTemplateIntoEmail() {
+  const templateId = document.getElementById('em-template-select').value;
+  if (!templateId) return;
+  
+  const template = templates.find(t => t.id === parseInt(templateId));
+  if (!template) return;
+  
+  const a = AGENCIES.find(x => x.id === currentId);
+  if (!a) return;
+  
+  // Clean up template body before personalizing
+  const cleanedTemplate = { ...template, body: cleanupTemplateBody(template.body) };
+  const personalized = personalizeEmail(cleanedTemplate, a);
+  
+  document.getElementById('em-subject').value = personalized.subject;
+  document.getElementById('em-body').value = personalized.body;
+  
+  document.getElementById('em-status').innerHTML = '<span style="color:#059669">✓ Template loaded and personalized</span>';
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+
+}
+
+async function generateEmail(){
+  const a = AGENCIES.find(x=>x.id===currentId);
+  const customPrompt = document.getElementById('em-custom-prompt').value.trim();
+  const btn = document.getElementById('btn-regen');
+  btn.disabled=true; btn.innerHTML='<div class="spinner spinner-dark"></div> Writing...';
+  document.getElementById('em-status').innerHTML='<div class="spinner spinner-dark"></div> Claude is personalizing your email...';
+  try {
+    const r = await generateEmailContent(a, customPrompt);
+    document.getElementById('em-subject').value = r.subject;
+    document.getElementById('em-body').value = r.body;
+    document.getElementById('em-status').innerHTML='<span style="color:#059669">✓ Email ready — edit freely before sending</span>';
+  } catch(e) {
+    document.getElementById('em-status').innerHTML='<span style="color:#b91c1c">⚠ Error: Check your Anthropic API key in Settings</span>';
+    console.error(e);
+  }
+  btn.disabled=false; btn.innerHTML='<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Generate with AI';
+}
+
+// ── ATTACHMENTS ───────────────────────────────────────────
+function handleAttachments() {
+  const files = document.getElementById('em-attachment').files;
+  Array.from(files).forEach(file => {
+    if (!emailAttachments.find(f => f.name === file.name)) {
+      emailAttachments.push(file);
+    }
+  });
+  renderAttachments();
+}
+
+function renderAttachments() {
+  const html = emailAttachments.map((file, idx) => `
+    <div class="attachment-item">
+      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      ${file.name}
+      <button onclick="removeAttachment(${idx})">✕</button>
+    </div>
+  `).join('');
+  document.getElementById('attachment-list').innerHTML = html;
+}
+
+function removeAttachment(idx) {
+  emailAttachments.splice(idx, 1);
+  renderAttachments();
+}
+
+
+// Convert line breaks to <br> tags for email
+function prepareEmailBody(text) {
+  // Always convert line breaks to <br> tags for HTML email
+  return text.replace(/\n/g, '<br>');
+}
+
+async function sendEmail(){
+  const to = document.getElementById('em-to').value.trim();
+  const subject = document.getElementById('em-subject').value.trim();
+  const body = prepareEmailBody(document.getElementById('em-body').value);
+  
+  if(!to||!subject||!body){showToast('Please fill in all fields');return}
+
+  const btn = document.getElementById('btn-send-email');
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Sending...';
+  document.getElementById('em-status').innerHTML='<div class="spinner spinner-dark"></div> Sending via Gmail...';
+
+  try {
+    await simulateSend(to, subject, body, emailAttachments);
+    const a = AGENCIES.find(x=>x.id===currentId);
+    const d = getD(currentId);
+    d.status='Emailed'; d.date=new Date().toISOString().split('T')[0];
+    addLog(currentId,'Email sent to '+to);
+    setD(currentId,d);
+    addActivity('Email sent to '+a.short+' ('+to+')');
+    renderTable(); renderDashboard();
+    showToast('Email sent to '+to+' ✓');
+    closeModal('email-modal');
+  } catch(e) {
+    document.getElementById('em-status').innerHTML='<span style="color:#b91c1c">⚠ Send failed: '+e.message+'</span>';
+  }
+  btn.disabled=false; btn.innerHTML='<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Send Email';
+}
+
+// ── SAVE EMAIL AS TEMPLATE ────────────────────────────────
+function saveEmailAsTemplate() {
+  const subject = document.getElementById('em-subject').value.trim();
+  const body = prepareEmailBody(document.getElementById('em-body').value);
+  
+  if (!subject || !body) {
+    showToast('Subject and body are required');
+    return;
+  }
+  
+  const name = prompt('Template name:', 'My Template');
+  if (!name) return;
+  
+  // Auto-convert agency-specific text to placeholders
+  const a = AGENCIES.find(x => x.id === currentId);
+  let templateSubject = subject;
+  let templateBody = body;
+  
+  if (a) {
+    templateSubject = templateSubject.replace(new RegExp(a.name, 'g'), '{{agency_name}}');
+    templateSubject = templateSubject.replace(new RegExp(a.short, 'g'), '{{agency_short}}');
+    templateSubject = templateSubject.replace(new RegExp(a.type, 'g'), '{{agency_type}}');
+    templateSubject = templateSubject.replace(new RegExp(a.city, 'g'), '{{agency_city}}');
+    
+    templateBody = templateBody.replace(new RegExp(a.name, 'g'), '{{agency_name}}');
+    templateBody = templateBody.replace(new RegExp(a.short, 'g'), '{{agency_short}}');
+    templateBody = templateBody.replace(new RegExp(a.type, 'g'), '{{agency_type}}');
+    templateBody = templateBody.replace(new RegExp(a.city, 'g'), '{{agency_city}}');
+  }
+  
+  const template = {
+    id: Date.now(),
+    name: name,
+    subject: templateSubject,
+    body: templateBody,
+    created: new Date().toISOString()
+  };
+  
+  templates.push(template);
+  LS.set('tms_templates', templates);
+  showToast('Template saved with auto-placeholders: ' + name);
+  renderDashboard();
+}
+
+// ── GMAIL API SEND ────────────────────────────────────────
+async function simulateSend(to, subject, body, attachments = []) {
+  if (!gmailToken) throw new Error('Gmail not connected — click Connect Gmail in the sidebar');
+  
+  // Build multipart email
+  const boundary = '===============' + Date.now() + '==';
+  const fromName = cfg.name || 'The Men Shop';
+  const fromEmail = 'info@tmst.my';
+  
+  let emailParts = [
+    `From: ${fromName} <${fromEmail}>`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=UTF-8`,
+    ``,
+    body
+  ];
+  
+  // Add attachments
+  for (const file of attachments) {
+    const base64 = await fileToBase64(file);
+    emailParts.push(`--${boundary}`);
+    emailParts.push(`Content-Type: ${file.type}`);
+    emailParts.push(`Content-Disposition: attachment; filename="${file.name}"`);
+    emailParts.push(`Content-Transfer-Encoding: base64`);
+    emailParts.push(``);
+    emailParts.push(base64);
+  }
+  
+  emailParts.push(`--${boundary}--`);
+  
+  const emailContent = emailParts.join('\r\n');
+  const encoded = btoa(unescape(encodeURIComponent(emailContent)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  const resp = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + gmailToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ raw: encoded })
+  });
+
+  if (resp.status === 401) {
+    gmailToken = null;
+    localStorage.removeItem('tms_gmail_token');
+    updateGmailUI(false);
+    throw new Error('Gmail session expired — please reconnect');
+  }
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error?.message || 'Gmail send failed');
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────
+function renderTemplates() {
+  if (templates.length === 0) {
+    document.getElementById('templates-container').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📝</div>
+        <p>No templates yet. Create your first template to reuse it for batch sending.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const cards = templates.map(t => `
+    <div class="template-card" onclick="editTemplate(${t.id})">
+      <div class="template-card-header">
+        <div class="template-name">${t.name}</div>
+        <div class="template-date">${new Date(t.created).toLocaleDateString()}</div>
+      </div>
+      <div class="template-preview">${t.body.replace(/<[^>]*>/g, '').substring(0, 120)}...</div>
+      <div class="template-actions">
+        <button class="btn btn-sm" onclick="useTemplate(${t.id});event.stopPropagation()">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          Use
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteTemplate(${t.id});event.stopPropagation()">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('templates-container').innerHTML = '<div class="template-grid">' + cards + '</div>';
+  renderDashboard();
+}
+
+function createNewTemplate() {
+  currentTemplateId = null;
+  document.getElementById('template-modal-title').textContent = 'Create Template';
+  document.getElementById('tmpl-name').value = '';
+  document.getElementById('tmpl-subject').value = '';
+  document.getElementById('template-modal').classList.add('open');
+  
+}
+
+function editTemplate(id) {
+  const template = templates.find(t => t.id === id);
+  if (!template) return;
+  
+  currentTemplateId = id;
+  document.getElementById('template-modal-title').textContent = 'Edit Template';
+  document.getElementById('tmpl-name').value = template.name;
+  document.getElementById('tmpl-subject').value = template.subject;
+  document.getElementById('template-modal').classList.add('open');
+  setTimeout(() => { document.getElementById('tmpl-body').value = template.body; }, 100);
+}
+
+function saveTemplateFromModal() {
+  const name = document.getElementById('tmpl-name').value.trim();
+  const subject = document.getElementById('tmpl-subject').value.trim();
+  const body = document.getElementById('tmpl-body').value;
+  
+  if (!name || !subject || !body) {
+    showToast('All fields are required');
+    return;
+  }
+  
+  if (currentTemplateId) {
+    const template = templates.find(t => t.id === currentTemplateId);
+    template.name = name;
+    template.subject = subject;
+    template.body = body;
+    showToast('Template updated: ' + name);
+  } else {
+    const template = {
+      id: Date.now(),
+      name: name,
+      subject: subject,
+      body: body,
+      created: new Date().toISOString()
+    };
+    templates.push(template);
+    showToast('Template created: ' + name);
+  }
+  
+  LS.set('tms_templates', templates);
+  closeModal('template-modal');
+  renderTemplates();
+}
+
+function deleteTemplate(id) {
+  if (!confirm('Delete this template?')) return;
+  const index = templates.findIndex(t => t.id === id);
+  if (index > -1) {
+    templates.splice(index, 1);
+    LS.set('tms_templates', templates);
+    renderTemplates();
+    showToast('Template deleted');
+  }
+}
+
+function useTemplate(id) {
+  showToast('Use this template in batch send mode or draft email');
+}
+
+// ── PERSONALIZE EMAIL ─────────────────────────────────────
+function personalizeEmail(template, agency) {
+  let subject = template.subject;
+  let body = template.body;
+  
+  subject = subject.replace(/\{\{agency_name\}\}/g, agency.name);
+  subject = subject.replace(/\{\{agency_short\}\}/g, agency.short);
+  subject = subject.replace(/\{\{agency_type\}\}/g, agency.type);
+  subject = subject.replace(/\{\{agency_city\}\}/g, agency.city);
+  
+  body = body.replace(/\{\{agency_name\}\}/g, agency.name);
+  body = body.replace(/\{\{agency_short\}\}/g, agency.short);
+  body = body.replace(/\{\{agency_type\}\}/g, agency.type);
+  body = body.replace(/\{\{agency_city\}\}/g, agency.city);
+  
+  // CRITICAL: Convert line breaks to <br> tags for HTML email
+  body = body.replace(/\n/g, '<br>');
+  
+  return { subject, body };
+}
+
+// ── BATCH ─────────────────────────────────────────────────
+
+// Batch filter functions
+function filterBatchAgencies(filter, btn) {
+  batchFilter = filter;
+  document.querySelectorAll('.batch-filter-tab').forEach(tab => tab.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else if (typeof event !== 'undefined' && event.target) event.target.classList.add('active');
+  renderBatchList();
+  updateBatchCount();
+}
+
+function renderBatchList() {
+  let agencies;
+  if (batchFilter === 'not-contacted') {
+    agencies = AGENCIES.filter(a => (getD(a.id).status || 'Not Contacted') === 'Not Contacted');
+  } else if (batchFilter === 'contacted') {
+    agencies = AGENCIES.filter(a => (getD(a.id).status || 'Not Contacted') !== 'Not Contacted');
+  } else {
+    agencies = AGENCIES;
+  }
+  
+  document.getElementById('batch-showing-count').textContent = agencies.length;
+  
+  if (agencies.length === 0) {
+    document.getElementById('batch-list').innerHTML = '<div style="font-size:13px;color:var(--text3);padding:12px 0;text-align:center">No agencies match this filter</div>';
+    return;
+  }
+  
+  document.getElementById('batch-list').innerHTML = agencies.map(a => {
+    const d = getD(a.id);
+    const status = d.status || 'Not Contacted';
+    return `<div class="batch-item" id="bi-${a.id}">
+      <input type="checkbox" class="batch-checkbox" data-id="${a.id}" onchange="updateBatchCount()">
+      <div class="batch-item-info">
+        <div class="name">${a.name}</div>
+        <div class="email">${a.email}</div>
+      </div>
+      <span class="badge ${STATUS_CLASS[status]}" id="bs-${a.id}">${status}</span>
+    </div>`;
+  }).join('');
+}
+
+function openBatch(){
+  selectedAgencies.clear();
+  batchFilter = 'not-contacted';
+  
+  const templateSelect = document.getElementById('batch-template-select');
+  templateSelect.innerHTML = '<option value="">— Choose a template —</option>' + 
+    templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  
+  document.querySelectorAll('.batch-filter-tab').forEach(tab => tab.classList.remove('active'));
+  const firstTab = document.querySelector('.batch-filter-tab');
+  if (firstTab) firstTab.classList.add('active');
+  
+  renderBatchList();
+  document.getElementById('batch-progress').style.display='none';
+  document.getElementById('batch-preview').style.display='none';
+  updateBatchCount();
+  document.getElementById('batch-modal').classList.add('open');
+}
+
+
+
+// ── BATCH PREVIEW EDIT ───────────────────────────────────
+let previewEditMode = false;
+let currentPreviewBody = '';
+
+function togglePreviewEdit() {
+  const display = document.getElementById('batch-preview-display');
+  const editor = document.getElementById('batch-preview-editor');
+  const btn = document.getElementById('preview-edit-btn');
+  
+  previewEditMode = !previewEditMode;
+  
+  if (previewEditMode) {
+    // Switch to edit mode
+    editor.value = currentPreviewBody;
+    display.style.display = 'none';
+    editor.style.display = 'block';
+    btn.textContent = 'Done';
+    btn.classList.add('btn-gold');
+  } else {
+    // Switch back to display mode
+    currentPreviewBody = editor.value;
+    display.innerHTML = currentPreviewBody.replace(/\n/g, '<br>');
+    editor.style.display = 'none';
+    display.style.display = 'block';
+    btn.textContent = 'Edit';
+    btn.classList.remove('btn-gold');
+  }
+}
+
+function updateBatchPreview() {
+  const templateId = document.getElementById('batch-template-select').value;
+  if (!templateId) {
+    document.getElementById('batch-preview').style.display = 'none';
+    return;
+  }
+  
+  const template = templates.find(t => t.id === parseInt(templateId));
+  if (!template) return;
+  
+  const sampleAgency = AGENCIES[0];
+  if (!sampleAgency) return;
+  
+  const personalized = personalizeEmail(template, sampleAgency);
+  currentPreviewBody = personalized.body;
+  
+  // Show in display mode
+  document.getElementById('batch-preview-display').innerHTML = personalized.body.replace(/\n/g, '<br>');
+  document.getElementById('batch-preview-editor').value = personalized.body;
+  
+  // Reset to display mode
+  previewEditMode = false;
+  document.getElementById('batch-preview-display').style.display = 'block';
+  document.getElementById('batch-preview-editor').style.display = 'none';
+  document.getElementById('preview-edit-btn').textContent = 'Edit';
+  document.getElementById('preview-edit-btn').classList.remove('btn-gold');
+  
+  document.getElementById('batch-preview').style.display = 'block';
+}
+
+function updateBatchCount() {
+  const checkboxes = document.querySelectorAll('.batch-checkbox:checked');
+  selectedAgencies.clear();
+  checkboxes.forEach(cb => selectedAgencies.add(parseInt(cb.dataset.id)));
+  document.getElementById('batch-count').textContent = selectedAgencies.size;
+}
+
+function toggleSelectAll() {
+  const checkboxes = document.querySelectorAll('.batch-checkbox');
+  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+  checkboxes.forEach(cb => cb.checked = !allChecked);
+  updateBatchCount();
+  document.getElementById('select-all-text').textContent = allChecked ? 'Select All' : 'Deselect All';
+}
+
+async function startBatch(){
+  const templateId = document.getElementById('batch-template-select').value;
+  if (!templateId) {
+    showToast('Please select a template first');
+    return;
+  }
+  
+  if (selectedAgencies.size === 0) {
+    showToast('Please select at least one agency');
+    return;
+  }
+  
+  if (!gmailToken) {
+    showToast('Connect Gmail first — click the button in the sidebar');
+    return;
+  }
+  
+  let template = templates.find(t => t.id === parseInt(templateId));
+  
+  // If user edited the preview, use edited version as template
+  if (previewEditMode || document.getElementById('batch-preview-editor').style.display !== 'none') {
+    const editedBody = document.getElementById('batch-preview-editor').value || currentPreviewBody;
+    template = { ...template, body: editedBody };
+  } else if (currentPreviewBody) {
+    // Use the current preview body if it exists
+    template = { ...template, body: currentPreviewBody };
+  }
+  
+  const agenciesToEmail = AGENCIES.filter(a => selectedAgencies.has(a.id));
+  
+  document.getElementById('btn-batch-start').disabled=true;
+  document.getElementById('batch-progress').style.display='block';
+  
+  for(let i=0;i<agenciesToEmail.length;i++){
+    const a=agenciesToEmail[i];
+    const pct=Math.round((i/agenciesToEmail.length)*100);
+    document.getElementById('pbar-fill').style.width=pct+'%';
+    document.getElementById('batch-label').textContent=`Processing ${i+1} of ${agenciesToEmail.length}: ${a.short}...`;
+    const bs=document.getElementById('bs-'+a.id);
+    if(bs){bs.className='badge s-emailed';bs.textContent='Sending...'}
+    
+    try {
+      const personalized = personalizeEmail(template, a);
+      await simulateSend(a.email, personalized.subject, personalized.body);
+      if(bs){bs.className='badge s-called';bs.textContent='Sent ✓'}
+      const d=getD(a.id); d.status='Emailed'; d.date=new Date().toISOString().split('T')[0];
+      addLog(a.id,'Batch email sent to '+a.email);
+      setD(a.id,d);
+      addActivity('Batch email sent to '+a.short);
+    } catch(e) {
+      if(bs){bs.className='badge s-replied';bs.textContent='Error'}
+      console.error(e);
+    }
+    await new Promise(r=>setTimeout(r,1500));
+  }
+  
+  document.getElementById('pbar-fill').style.width='100%';
+  document.getElementById('batch-label').textContent='All done! ✓';
+  document.getElementById('btn-batch-start').disabled=false;
+  renderTable(); renderDashboard();
+  showToast('Batch complete — '+agenciesToEmail.length+' emails sent!');
+}
+
+
+
+
+
+// Clean all templates - remove visible HTML tags
+function cleanAllTemplates() {
+  if (!confirm('This will clean up all templates by removing visible HTML tags. Continue?')) return;
+  
+  let cleaned = 0;
+  templates.forEach(t => {
+    const before = t.body;
+    t.body = cleanupTemplateBody(t.body);
+    if (before !== t.body) cleaned++;
+  });
+  
+  LS.set('tms_templates', templates);
+  renderTemplates();
+  
+  showToast(`Cleaned ${cleaned} template(s) ✓`);
+}
+
+// Data backup functions
+function exportData() {
+  const backup = {
+    version: '1.1',
+    exportDate: new Date().toISOString(),
+    data: { crm: crm, templates: templates, activity: activity, config: cfg, customAgencies: customAgencies }
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `tms-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exported ✓');
+}
+
+function importData() {
+  const file = document.getElementById('import-file').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const backup = JSON.parse(e.target.result);
+      if (!backup.data) { showToast('Invalid backup file'); return; }
+      if (!confirm('Replace all current data with backup?')) return;
+      if (backup.data.crm) { crm = backup.data.crm; LS.set('tms_crm', crm); }
+      if (backup.data.templates) { templates = backup.data.templates; LS.set('tms_templates', templates); }
+      if (backup.data.activity) { activity = backup.data.activity; LS.set('tms_activity', activity); }
+      if (backup.data.config) { cfg = backup.data.config; LS.set('tms_cfg', cfg); }
+      if (backup.data.customAgencies) { customAgencies = backup.data.customAgencies; localStorage.setItem('tms_custom_agencies', JSON.stringify(customAgencies)); }
+      showToast('Data restored! Refreshing...');
+      setTimeout(() => location.reload(), 1500);
+    } catch(err) {
+      showToast('Error: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function editCustomAgency(id) { openAgencyModal(id); }
+function editAgencyFromDetail() {
+  if (!currentId) return;
+  openAgencyModal(currentId);
+}
+
+// ── CUSTOM AGENCIES CRUD ──────────────────────────────────
+let editingAgencyId = null;
+
+function openAgencyModal(id) {
+  editingAgencyId = id || null;
+  const title = document.getElementById('agency-modal-title');
+  const deleteBtn = document.getElementById('ag-delete-btn');
+
+  if (id) {
+    const a = AGENCIES.find(x => x.id === id);
+    if (!a) return;
+    const isBuiltin = id < 10000;
+    title.textContent = isBuiltin ? 'View Agency (built-in)' : 'Edit Agency';
+    document.getElementById('ag-name').value = a.name;
+    document.getElementById('ag-short').value = a.short;
+    document.getElementById('ag-type').value = a.type;
+    document.getElementById('ag-city').value = a.city;
+    document.getElementById('ag-email').value = a.email || '';
+    document.getElementById('ag-phone').value = a.phone || '';
+    // Built-ins can be edited too (changes saved as an override in customAgencies with same id? No — simpler: only custom agencies are editable).
+    // For built-ins, we allow email/phone editing by saving an "override" custom agency. For simplicity V1: built-ins are read-only here.
+    const readonly = isBuiltin;
+    ['ag-name','ag-short','ag-type','ag-city','ag-email','ag-phone'].forEach(fid => {
+      document.getElementById(fid).readOnly = readonly;
+      if (fid === 'ag-type') document.getElementById(fid).disabled = readonly;
+    });
+    deleteBtn.style.display = isBuiltin ? 'none' : 'inline-flex';
+  } else {
+    title.textContent = 'Add Agency';
+    ['ag-name','ag-short','ag-email','ag-phone','ag-city'].forEach(fid => {
+      const el = document.getElementById(fid);
+      el.value = '';
+      el.readOnly = false;
+    });
+    document.getElementById('ag-type').value = 'Department';
+    document.getElementById('ag-type').disabled = false;
+    deleteBtn.style.display = 'none';
+  }
+  document.getElementById('agency-modal').classList.add('open');
+}
+
+function saveAgencyFromModal() {
+  const name = document.getElementById('ag-name').value.trim();
+  const short = document.getElementById('ag-short').value.trim();
+  const type = document.getElementById('ag-type').value;
+  const city = document.getElementById('ag-city').value.trim();
+  const email = document.getElementById('ag-email').value.trim();
+  const phone = document.getElementById('ag-phone').value.trim();
+
+  if (!name || !short || !type || !city) {
+    showToast('Name, short name, type, and city are required');
+    return;
+  }
+
+  // Built-in agencies are read-only — just close.
+  if (editingAgencyId && editingAgencyId < 10000) {
+    closeModal('agency-modal');
+    return;
+  }
+
+  if (editingAgencyId) {
+    // Update existing custom
+    const idx = customAgencies.findIndex(a => a.id === editingAgencyId);
+    if (idx >= 0) {
+      customAgencies[idx] = { id: editingAgencyId, name, short, type, city, email, phone };
+      showToast('Agency updated: ' + short);
+    }
+  } else {
+    // New custom agency — IDs start at 10000
+    const maxId = customAgencies.reduce((m, a) => Math.max(m, a.id), 9999);
+    const newAgency = { id: maxId + 1, name, short, type, city, email, phone };
+    customAgencies.push(newAgency);
+    showToast('Agency added: ' + short);
+    addActivity('Added custom agency: ' + short);
+  }
+
+  localStorage.setItem('tms_custom_agencies', JSON.stringify(customAgencies));
+  rebuildAgencies();
+  closeModal('agency-modal');
+  renderTable();
+  renderDashboard();
+}
+
+function deleteCustomAgency() {
+  if (!editingAgencyId || editingAgencyId < 10000) return;
+  const a = customAgencies.find(x => x.id === editingAgencyId);
+  if (!a) return;
+  if (!confirm(`Delete "${a.name}"? This cannot be undone. CRM data for this agency will also be removed.`)) return;
+
+  customAgencies = customAgencies.filter(x => x.id !== editingAgencyId);
+  localStorage.setItem('tms_custom_agencies', JSON.stringify(customAgencies));
+  // Also clear any CRM data for this agency
+  if (crm[editingAgencyId]) {
+    delete crm[editingAgencyId];
+    LS.set('tms_crm', crm);
+  }
+  rebuildAgencies();
+  closeModal('agency-modal');
+  renderTable();
+  renderDashboard();
+  showToast('Agency deleted');
+}
+
+// ── EXPORT ────────────────────────────────────────────────
+function exportCSV(){
+  const rows=[['Agency','Short Name','Type','District','Division','Address','Phone','Phone 2','Fax','Website','Email','Admin Email','Procurement Email','Verified','Source','Status','PIC','PIC Phone','PIC Email','PIC Title','Notes','Last Action']];
+  AGENCIES.forEach(a=>{
+    const d=getD(a.id);
+    rows.push([a.name,a.short,a.type,a.district||a.city||'',a.division||'',a.address||'',a.phone||'',a.phone2||'',a.fax||'',a.website||'',a.email||'',a.adminEmail||'',a.procurementEmail||'',a.verified||'',a.source||'',d.status||'Not Contacted',d.pic||'',d.picPhone||'',d.picEmail||'',d.picTitle||'',d.notes||'',d.date||'']);
+  });
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download='tms_outreach_'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
+  showToast('CSV exported ✓');
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ── TEST EMAIL ────────────────────────────────────────────
+async function sendTestEmail() {
+  const to = document.getElementById('test-email-to').value.trim();
+  if (!to) { showToast('Enter an email address'); return; }
+  if (!gmailToken) { showToast('Connect Gmail first'); return; }
+
+  const btn = document.getElementById('btn-test-send');
+  const status = document.getElementById('test-email-status');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Sending...';
+  status.innerHTML = '<div class="spinner spinner-dark"></div> Sending test email...';
+
+  try {
+    const subject = 'Test Email — The Men Shop Outreach CRM';
+    const body = `<p>Hi,</p><p>This is a test email from The Men Shop Outreach CRM.</p><p>If you received this, your Gmail connection is working correctly and emails will be sent as:</p><p><strong>From: The Men Shop &lt;info@tmst.my&gt;</strong></p><p>You are all set to start sending outreach emails!</p><p>— The Men Shop CRM</p>`;
+
+    await simulateSend(to, subject, body);
+    status.innerHTML = '<span style="color:#059669">✓ Test email sent successfully to ' + to + '</span>';
+    showToast('Test email sent ✓');
+  } catch(e) {
+    status.innerHTML = '<span style="color:#b91c1c">⚠ Error: ' + e.message + '</span>';
+    showToast('Send failed');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Send Test';
+}
+
+// ── INIT ───────────────────────────────────────────────
+function init() {
+  renderDashboard();
+  renderTable();
+  renderTemplates();
+  loadSettings();
+  initGmailAuth();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
