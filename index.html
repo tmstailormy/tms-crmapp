@@ -255,12 +255,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
 .format-btn em{font-style:italic}
 .format-btn u{text-decoration:underline}
 
-/* Preserve line breaks in textarea */
+/* Contenteditable rich text editor */
 .email-body-edit{
-  white-space:pre-wrap;
   font-family:'DM Sans',sans-serif;
+  font-size:13px;
   line-height:1.7;
+  min-height:220px;
+  max-height:400px;
+  overflow-y:auto;
+  padding:9px 13px;
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  background:var(--cream);
+  color:var(--text);
+  outline:none;
+  transition:.15s;
+  width:100%;
+  box-sizing:border-box;
+  resize:vertical;
 }
+.email-body-edit:focus{border-color:var(--gold);background:var(--white)}
+.email-body-edit p{margin:0 0 10px}
+.email-body-edit p:last-child{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -572,7 +588,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
             • List
           </button>
         </div>
-        <textarea id="em-body" class="email-body-edit" rows="12"></textarea>
+        <div id="em-body" class="email-body-edit" contenteditable="true"></div>
       </div>
       
       <!-- Attachments -->
@@ -767,7 +783,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
             • List
           </button>
         </div>
-        <textarea id="tmpl-body" class="email-body-edit" rows="12"></textarea>
+        <div id="tmpl-body" class="email-body-edit" contenteditable="true"></div>
       </div>
       <div style="background:var(--amber-bg);padding:12px;border-radius:var(--r);border:1px solid rgba(146,64,14,0.2)">
         <div style="font-size:12px;color:var(--amber-c);font-weight:500;margin-bottom:4px">💡 Placeholders</div>
@@ -1031,48 +1047,35 @@ let emailAttachments = [];
 
 
 // ── TEXT FORMATTING ───────────────────────────────────────
-function formatText(textareaId, format) {
-  const textarea = document.getElementById(textareaId);
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const selectedText = textarea.value.substring(start, end);
-  
-  if (!selectedText) {
+function formatText(editorId, format) {
+  const editor = document.getElementById(editorId);
+  editor.focus();
+
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.toString() === '') {
     alert('Please select some text first');
     return;
   }
-  
-  let formattedText = '';
-  
+
   switch(format) {
     case 'bold':
-      formattedText = `<strong>${selectedText}</strong>`;
+      document.execCommand('bold', false, null);
       break;
     case 'italic':
-      formattedText = `<em>${selectedText}</em>`;
+      document.execCommand('italic', false, null);
       break;
     case 'underline':
-      formattedText = `<u>${selectedText}</u>`;
+      document.execCommand('underline', false, null);
       break;
     case 'link':
       const url = prompt('Enter URL (e.g., https://example.com):');
       if (!url) return;
-      formattedText = `<a href="${url}">${selectedText}</a>`;
+      document.execCommand('createLink', false, url);
       break;
     case 'list':
-      const items = selectedText.split('\n').filter(item => item.trim());
-      formattedText = '<ul>\n' + items.map(item => `  <li>${item.trim()}</li>`).join('\n') + '\n</ul>';
+      document.execCommand('insertUnorderedList', false, null);
       break;
   }
-  
-  // Replace selected text with formatted version
-  const newValue = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-  textarea.value = newValue;
-  
-  // Set cursor position after inserted text
-  const newCursorPos = start + formattedText.length;
-  textarea.setSelectionRange(newCursorPos, newCursorPos);
-  textarea.focus();
 }
 
 function getD(id){return crm[id]||{status:'Not Contacted',pic:'',picPhone:'',picEmail:'',picTitle:'',notes:'',date:'',log:[]}}
@@ -1347,6 +1350,7 @@ function openEmailSingle(){
   
   document.getElementById('em-to').value = d.picEmail||a.email;
   document.getElementById('em-subject').value = '';
+  document.getElementById('em-body').innerHTML = '';
   document.getElementById('em-custom-prompt').value = '';
   document.getElementById('em-status').innerHTML = '';
   emailAttachments = [];
@@ -1386,12 +1390,10 @@ function loadTemplateIntoEmail() {
   const a = AGENCIES.find(x => x.id === currentId);
   if (!a) return;
   
-  // Clean up template body before personalizing
-  const cleanedTemplate = { ...template, body: cleanupTemplateBody(template.body) };
-  const personalized = personalizeEmail(cleanedTemplate, a);
+  const personalized = personalizeEmail(template, a);
   
   document.getElementById('em-subject').value = personalized.subject;
-  document.getElementById('em-body').value = personalized.body;
+  document.getElementById('em-body').innerHTML = personalized.body;
   
   document.getElementById('em-status').innerHTML = '<span style="color:#059669">✓ Template loaded and personalized</span>';
 }
@@ -1410,7 +1412,7 @@ async function generateEmail(){
   try {
     const r = await generateEmailContent(a, customPrompt);
     document.getElementById('em-subject').value = r.subject;
-    document.getElementById('em-body').value = r.body;
+    document.getElementById('em-body').innerHTML = r.body;
     document.getElementById('em-status').innerHTML='<span style="color:#059669">✓ Email ready — edit freely before sending</span>';
   } catch(e) {
     document.getElementById('em-status').innerHTML='<span style="color:#b91c1c">⚠ Error: Check your DeepSeek API key in Settings</span>';
@@ -1448,16 +1450,23 @@ function removeAttachment(idx) {
 
 
 // Convert line breaks to <br> tags for email
-function prepareEmailBody(text) {
-  // Always convert line breaks to <br> tags for HTML email
-  return text.replace(/\n/g, '<br>');
+function prepareEmailBody(html) {
+  if (!html) return '';
+  // AI/template content already has <p> tags — pass through unchanged
+  if (/<p[\s>]/i.test(html)) return html;
+  // Normalize contenteditable <div> line-break wrappers to <br>
+  return html
+    .replace(/<div><br\s*\/?><\/div>/gi, '<br>')
+    .replace(/<\/div><div>/gi, '<br>')
+    .replace(/<div>/gi, '')
+    .replace(/<\/div>/gi, '');
 }
 
 async function sendEmail(){
   const to = document.getElementById('em-to').value.trim();
   const subject = document.getElementById('em-subject').value.trim();
-  const body = prepareEmailBody(document.getElementById('em-body').value);
-  
+  const body = prepareEmailBody(document.getElementById('em-body').innerHTML);
+
   if(!to||!subject||!body){showToast('Please fill in all fields');return}
 
   const btn = document.getElementById('btn-send-email');
@@ -1484,8 +1493,8 @@ async function sendEmail(){
 // ── SAVE EMAIL AS TEMPLATE ────────────────────────────────
 function saveEmailAsTemplate() {
   const subject = document.getElementById('em-subject').value.trim();
-  const body = prepareEmailBody(document.getElementById('em-body').value);
-  
+  const body = prepareEmailBody(document.getElementById('em-body').innerHTML);
+
   if (!subject || !body) {
     showToast('Subject and body are required');
     return;
@@ -1635,6 +1644,7 @@ function createNewTemplate() {
   document.getElementById('template-modal-title').textContent = 'Create Template';
   document.getElementById('tmpl-name').value = '';
   document.getElementById('tmpl-subject').value = '';
+  document.getElementById('tmpl-body').innerHTML = '';
   document.getElementById('template-modal').classList.add('open');
   
 }
@@ -1648,13 +1658,13 @@ function editTemplate(id) {
   document.getElementById('tmpl-name').value = template.name;
   document.getElementById('tmpl-subject').value = template.subject;
   document.getElementById('template-modal').classList.add('open');
-  setTimeout(() => { document.getElementById('tmpl-body').value = template.body; }, 100);
+  setTimeout(() => { document.getElementById('tmpl-body').innerHTML = template.body; }, 0);
 }
 
 function saveTemplateFromModal() {
   const name = document.getElementById('tmpl-name').value.trim();
   const subject = document.getElementById('tmpl-subject').value.trim();
-  const body = document.getElementById('tmpl-body').value;
+  const body = document.getElementById('tmpl-body').innerHTML;
   
   if (!name || !subject || !body) {
     showToast('All fields are required');
