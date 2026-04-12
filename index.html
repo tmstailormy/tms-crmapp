@@ -404,11 +404,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
           </div>
         </div>
 
-        <!-- Anthropic API -->
+        <!-- DeepSeek API -->
         <div class="settings-card">
-          <h3>Anthropic API</h3>
-          <p>Required for AI-powered email generation. Get your API key from <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">console.anthropic.com</a></p>
-          <div class="field"><label>API Key</label><input type="password" id="s-apikey" placeholder="sk-ant-..."/></div>
+          <h3>DeepSeek API</h3>
+          <p>Required for AI-powered email generation. Get your API key from <a href="https://platform.deepseek.com" target="_blank" style="color:var(--gold)">platform.deepseek.com</a></p>
+          <div class="field"><label>DeepSeek API Key</label><input type="password" id="s-apikey" placeholder="sk-..."/></div>
           <div class="save-msg" id="ai-save-msg"></div>
           <div style="margin-top:14px"><button class="btn btn-navy" onclick="saveAI()">Save API Key</button></div>
         </div>
@@ -416,7 +416,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
         <!-- Email Template -->
         <div class="settings-card">
           <h3>Default Email Template</h3>
-          <p>Customize how Claude writes your emails by default (templates can override these settings)</p>
+          <p>Customize how DeepSeek writes your emails by default (templates can override these settings)</p>
           <div class="settings-grid-fields">
             <div class="field field-full"><label>Company Context</label>
               <textarea id="s-context" rows="4" placeholder="Background info about your company..."></textarea>
@@ -1271,15 +1271,14 @@ function saveDetail() {
 
 // ── SETTINGS ──────────────────────────────────────────────
 function loadSettings() {
-  document.getElementById('s-apikey').value = cfg.apikey||'';
+  document.getElementById('s-apikey').value = localStorage.getItem('tms_deepseek_key')||'';
   document.getElementById('s-context').value = cfg.context||'';
   document.getElementById('s-tone').value = cfg.tone||'professional warm';
   document.getElementById('s-signoff').value = cfg.signoff||'';
 }
 
 function saveAI(){
-  cfg.apikey=document.getElementById('s-apikey').value.trim();
-  LS.set('tms_cfg',cfg);
+  localStorage.setItem('tms_deepseek_key', document.getElementById('s-apikey').value.trim());
   document.getElementById('ai-save-msg').textContent='✓ API key saved';
   setTimeout(()=>document.getElementById('ai-save-msg').textContent='',3000);
 }
@@ -1297,7 +1296,7 @@ function saveDefaultTemplate(){
 
 // ── AI EMAIL ──────────────────────────────────────────────
 async function generateEmailContent(agency, customPrompt = '') {
-  const apikey = cfg.apikey;
+  const apikey = localStorage.getItem('tms_deepseek_key');
   if(!apikey) return {
     subject:`Custom Neckties for ${agency.name} — The Men Shop`,
     body:`<p>Dear Procurement / HR Team,</p><p>I am reaching out from The Men Shop (tmst.my), a professional tailor based in Kuching, Sarawak. Over the years, we have had the privilege of serving numerous government agencies and elected officials with quality corporate shirts and uniforms.</p><p>We would like to introduce our premium custom neckties, available in your agency's official colours with your crest or logo woven in. These make excellent corporate gifts, staff uniform additions, or event mementos — and as actual tailors, we bring a level of craft and attention to detail that a typical gift shop cannot.</p><p>We would love to arrange a brief meeting or send samples for your consideration. Please feel free to reach us at info@tmst.my or visit tmst.my.</p><p>Warm regards,<br>${cfg.signoff||'The Men Shop Team'}<br>info@tmst.my | tmst.my</p>`
@@ -1324,13 +1323,13 @@ Key points to weave in naturally:
 
   prompt += `\n\nRespond ONLY with valid JSON (no markdown, no backticks):\n{"subject":"subject here","body":"email body in HTML format with <p> tags"}`;
 
-  const resp = await fetch('https://api.anthropic.com/v1/messages',{
+  const resp = await fetch('https://api.deepseek.com/v1/chat/completions',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':apikey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${apikey}`},
+    body:JSON.stringify({model:'deepseek-chat',max_tokens:700,messages:[{role:'user',content:prompt}]})
   });
   const json = await resp.json();
-  const text = json.content[0].text.replace(/```json|```/g,'').trim();
+  const text = json.choices[0].message.content.replace(/```json|```/g,'').trim();
   return JSON.parse(text);
 }
 
@@ -1417,7 +1416,7 @@ async function generateEmail(){
     document.getElementById('em-body').value = r.body;
     document.getElementById('em-status').innerHTML='<span style="color:#059669">✓ Email ready — edit freely before sending</span>';
   } catch(e) {
-    document.getElementById('em-status').innerHTML='<span style="color:#b91c1c">⚠ Error: Check your Anthropic API key in Settings</span>';
+    document.getElementById('em-status').innerHTML='<span style="color:#b91c1c">⚠ Error: Check your DeepSeek API key in Settings</span>';
     console.error(e);
   }
   btn.disabled=false; btn.innerHTML='<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Generate with AI';
