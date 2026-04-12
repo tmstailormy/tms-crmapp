@@ -1353,9 +1353,6 @@ function openEmailSingle(){
   document.getElementById('attachment-list').innerHTML = '';
   
   document.getElementById('email-modal').classList.add('open');
-  
-  // Initialize TinyMCE after modal opens
-  setTimeout(() => { generateEmail(); }, 100);
 }
 
 
@@ -1409,7 +1406,7 @@ async function generateEmail(){
   const customPrompt = document.getElementById('em-custom-prompt').value.trim();
   const btn = document.getElementById('btn-regen');
   btn.disabled=true; btn.innerHTML='<div class="spinner spinner-dark"></div> Writing...';
-  document.getElementById('em-status').innerHTML='<div class="spinner spinner-dark"></div> Claude is personalizing your email...';
+  document.getElementById('em-status').innerHTML='<div class="spinner spinner-dark"></div> DeepSeek is personalizing your email...';
   try {
     const r = await generateEmailContent(a, customPrompt);
     document.getElementById('em-subject').value = r.subject;
