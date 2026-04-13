@@ -29,10 +29,11 @@ const AGENCY_HEADERS = [
 
 // ── AUTH ────────────────────────────────────────────────────
 async function getSheets() {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: path.join(__dirname, 'credentials.json'),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+  const scopes = ['https://www.googleapis.com/auth/spreadsheets'];
+  const authConfig = process.env.GOOGLE_CREDENTIALS
+    ? { credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS), scopes }
+    : { keyFile: path.join(__dirname, 'credentials.json'), scopes };
+  const auth = new google.auth.GoogleAuth(authConfig);
   const client = await auth.getClient();
   return google.sheets({ version: 'v4', auth: client });
 }
