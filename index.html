@@ -578,7 +578,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
       </div>
       <div>
         <div class="section-label">Call Notes</div>
-        <div class="field"><textarea id="dp-notes" rows="4" placeholder="What was discussed, objections, follow-up actions..." oninput="saveDetail()"></textarea></div>
+        <div id="dp-notes-history" style="font-size:12.5px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;background:var(--cream);border:1px solid var(--border2);border-radius:var(--r);padding:9px 13px;min-height:48px;max-height:180px;overflow-y:auto;margin-bottom:8px"></div>
+        <div class="field" style="margin-bottom:4px"><textarea id="dp-new-note" rows="2" placeholder="Type a note and press Save — date &amp; time will be added automatically" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();saveNote();}"></textarea></div>
+        <button class="btn btn-sm" onclick="saveNote()" style="font-size:12px">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Note
+        </button>
       </div>
       <div>
         <div class="section-label">Activity Log</div>
@@ -1354,7 +1359,8 @@ function openDetail(id) {
   document.getElementById('dp-pic-phone').value = d.picPhone||'';
   document.getElementById('dp-pic-email').value = d.picEmail||'';
   document.getElementById('dp-pic-title').value = d.picTitle||'';
-  document.getElementById('dp-notes').value = d.notes||'';
+  document.getElementById('dp-notes-history').textContent = d.notes||'';
+  document.getElementById('dp-new-note').value = '';
   const logs = (d.log||[]).map(l=>`<div class="log-item"><div class="log-time">${l.time}</div><div>${l.msg}</div></div>`).join('');
   document.getElementById('dp-log').innerHTML = logs || '<div style="font-size:12px;color:var(--text3);padding:8px 0">No activity yet.</div>';
   document.getElementById('detail-overlay').classList.add('open');
@@ -1377,10 +1383,35 @@ function saveDetail() {
   d.picPhone = document.getElementById('dp-pic-phone').value.trim();
   d.picEmail = document.getElementById('dp-pic-email').value.trim();
   d.picTitle = document.getElementById('dp-pic-title').value.trim();
-  d.notes = document.getElementById('dp-notes').value.trim();
+  // Notes are written only via saveNote() so they accumulate with timestamps.
+  // Do not overwrite d.notes here.
   setD(currentId, d);
   renderTable();
   renderDashboard();
+}
+
+// Format "13 Apr 2:30pm" in Malaysian locale
+function noteTimestamp() {
+  const n = new Date();
+  const day = n.getDate();
+  const mon = n.toLocaleString('en-MY', { month: 'short' });
+  let h = n.getHours();
+  const m = String(n.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return `${day} ${mon} ${h}:${m}${ampm}`;
+}
+
+function saveNote() {
+  const raw = document.getElementById('dp-new-note').value.trim();
+  if (!raw || !currentId) return;
+  const d = getD(currentId);
+  const entry = noteTimestamp() + ': ' + raw;
+  d.notes = d.notes ? (d.notes + '\n' + entry) : entry;
+  setD(currentId, d);
+  document.getElementById('dp-notes-history').textContent = d.notes;
+  document.getElementById('dp-new-note').value = '';
+  document.getElementById('dp-new-note').focus();
 }
 
 // ── SETTINGS ──────────────────────────────────────────────
@@ -2301,6 +2332,7 @@ function editAgencyFromDetail() {
 
 // ── CUSTOM AGENCIES CRUD ──────────────────────────────────
 let editingAgencyId = null;
+let _agNotesOriginal = ''; // notes value when the modal opened, used to detect new additions
 
 function openAgencyModal(id) {
   editingAgencyId = id || null;
@@ -2338,6 +2370,7 @@ function openAgencyModal(id) {
     setVal('ag-admin-email', a.adminEmail);
     setVal('ag-proc-email', a.procurementEmail);
     setVal('ag-notes', a.notes);
+    _agNotesOriginal = a.notes || '';
     // Delete button: only for agencies that actually live in customAgencies
     // (either user-created custom, or adopted/edited built-ins)
     deleteBtn.style.display = (isCustom || isAdopted) ? 'inline-flex' : 'none';
@@ -2352,6 +2385,7 @@ function openAgencyModal(id) {
     title.textContent = 'Add Agency';
     ['ag-name','ag-short','ag-city','ag-division','ag-website','ag-address',
      'ag-phone','ag-phone2','ag-fax','ag-email','ag-admin-email','ag-proc-email','ag-notes'].forEach(fid => setVal(fid, ''));
+    _agNotesOriginal = '';
     document.getElementById('ag-type').value = 'Department';
     deleteBtn.style.display = 'none';
     deleteBtn.innerHTML = '<svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete';
@@ -2384,7 +2418,14 @@ function saveAgencyFromModal() {
     email: getVal('ag-email'),
     adminEmail: getVal('ag-admin-email'),
     procurementEmail: getVal('ag-proc-email'),
-    notes: getVal('ag-notes')
+    notes: (() => {
+      const typed = getVal('ag-notes');
+      // If the user changed the notes field, treat the new content as a timestamped entry
+      // appended after any existing notes.
+      if (typed === _agNotesOriginal) return typed; // unchanged — keep as-is
+      const entry = noteTimestamp() + ': ' + typed;
+      return _agNotesOriginal ? (_agNotesOriginal + '\n' + entry) : entry;
+    })()
   };
 
   if (editingAgencyId) {
