@@ -493,6 +493,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
           <div style="font-size:11px;color:var(--text3);margin-top:10px">After migration succeeds, the old local data will be cleared from this browser.</div>
         </div>
 
+        <!-- Sheet Maintenance -->
+        <div class="settings-card">
+          <h3>Sheet Maintenance</h3>
+          <p>Use these tools to fix column alignment or download a raw backup from Google Sheets.</p>
+          <div id="reset-sheet-status" style="font-size:13px;color:var(--text2);background:var(--cream);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;display:none"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-navy" id="btn-reset-sheet" onclick="resetSheet()">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+              Reset &amp; Realign Agencies Sheet
+            </button>
+            <button class="btn" onclick="downloadSheetBackup()">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Sheet Backup
+            </button>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:10px">Reset clears and rewrites all 136 agencies in the correct column order while keeping all statuses, notes, PIC data, and activity logs intact.</div>
+        </div>
+
         <!-- Data Backup -->
         <div class="settings-card">
           <h3>💾 Data Backup & Restore</h3>
@@ -1495,6 +1513,47 @@ async function migrateFromLocalStorage() {
   migrateBtn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Push to Google Sheets';
 }
 
+// ── SHEET BACKUP DOWNLOAD ─────────────────────────────────
+async function downloadSheetBackup() {
+  try {
+    showToast('Fetching backup from Google Sheets…');
+    const resp = await fetch(API_BASE + '/api/backup');
+    if (!resp.ok) throw new Error('Server returned ' + resp.status);
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crm-sheet-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(err) {
+    showToast('Backup failed: ' + err.message);
+  }
+}
+
+// ── RESET SHEET ────────────────────────────────────────────
+async function resetSheet() {
+  if (!confirm('This will clear and rewrite the entire Agencies tab in Google Sheets.\n\nAll statuses, notes, PIC info, and activity logs will be preserved.\nAgency names, phones, addresses, etc. will be refreshed from the built-in list.\n\nContinue?')) return;
+
+  const statusEl = document.getElementById('reset-sheet-status');
+  const btn = document.getElementById('btn-reset-sheet');
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = 'Resetting sheet… this may take a few seconds.';
+  btn.disabled = true;
+
+  try {
+    const result = await apiCall('POST', '/api/reset-sheet', { agencies: AGENCIES });
+    if (result && result.ok) {
+      statusEl.innerHTML = '<span style="color:#059669">✓ Sheet reset complete — ' + result.rowsWritten + ' rows written in correct column order.</span>';
+    } else {
+      statusEl.innerHTML = '<span style="color:#b91c1c">Error: ' + (result && result.error ? result.error : 'Unknown error') + '</span>';
+    }
+  } catch(err) {
+    statusEl.innerHTML = '<span style="color:#b91c1c">Error: ' + err.message + '</span>';
+  }
+
+  btn.disabled = false;
+}
 
 
 // ── AI EMAIL ──────────────────────────────────────────────
