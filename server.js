@@ -539,9 +539,20 @@ app.get('/api/backup', async (req, res) => {
   }
 });
 
+// Helper: column index → spreadsheet letter (0=A, 26=AA, 27=AB …)
+function colLetter(i) {
+  let s = '';
+  i++;
+  while (i > 0) {
+    i--;
+    s = String.fromCharCode(65 + (i % 26)) + s;
+    i = Math.floor(i / 26);
+  }
+  return s;
+}
+
 // ── SHEET DIAGNOSTICS: inspect current column layout ────────
-// Returns the header row and first 5 data rows so you can verify
-// which columns actually hold which data before a reset.
+// Returns the header row and first 5 data rows (columns A–V only).
 app.get('/api/debug-sheet', async (req, res) => {
   try {
     const sheets = await getSheets();
@@ -554,14 +565,12 @@ app.get('/api/debug-sheet', async (req, res) => {
     if (allRows.length === 0) return res.json({ headers: [], sample: [] });
 
     const headers = allRows[0];
-    const dataRows = allRows.slice(1, 6); // first 5 data rows
+    const dataRows = allRows.slice(1, 6);
 
-    // Map each data row into { colLetter, header, value } so it's easy to read
     const sample = dataRows.map(row => {
       const cells = {};
       headers.forEach((h, i) => {
-        const letter = String.fromCharCode(65 + i); // A, B, C …
-        cells[`${letter}(${i}):${h}`] = row[i] || '';
+        cells[`${colLetter(i)}(${i}):${h}`] = row[i] || '';
       });
       return cells;
     });
@@ -574,6 +583,55 @@ app.get('/api/debug-sheet', async (req, res) => {
     });
   } catch (err) {
     console.error('[debug-sheet]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── OVERFLOW INSPECTOR: read ALL columns including W-AM ──────
+// Returns overflow column headers (row 1) and a sample of the
+// raw cell values in columns W onwards for the first 10 data rows.
+app.get('/api/inspect-overflow', async (req, res) => {
+  try {
+    const sheets = await getSheets();
+
+    // Read the full sheet width — AM = col 39
+    const raw = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Agencies!A1:AM'
+    });
+    const allRows = raw.data.values || [];
+    if (allRows.length === 0) return res.json({ message: 'Sheet is empty' });
+
+    const fullHeader = allRows[0] || [];
+    const maxCol = Math.max(...allRows.map(r => r.length));
+
+    // Columns beyond V (index 21) — index 22 = W
+    const overflowStart = 22;
+    const overflowHeaders = fullHeader.slice(overflowStart);
+    const overflowSample = allRows.slice(1, 11).map((row, rowNum) => {
+      const id = row[0] || `row${rowNum + 2}`;
+      const name = row[1] || '';
+      const cells = {};
+      for (let i = overflowStart; i < Math.max(row.length, maxCol); i++) {
+        if (row[i] != null && row[i] !== '') {
+          cells[`${colLetter(i)}(${i})`] = row[i];
+        }
+      }
+      return { id, name, overflowCells: cells };
+    });
+
+    // Count how many rows have any overflow data
+    const rowsWithOverflow = allRows.slice(1).filter(row => row.length > overflowStart).length;
+
+    res.json({
+      totalColumns: maxCol,
+      overflowStartCol: colLetter(overflowStart),
+      overflowHeaders,
+      rowsWithOverflow,
+      sample: overflowSample
+    });
+  } catch (err) {
+    console.error('[inspect-overflow]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
