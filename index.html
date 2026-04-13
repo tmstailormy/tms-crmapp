@@ -475,6 +475,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
           <div style="font-size:11px;color:var(--text3);margin-top:8px">Removes visible HTML tags and fixes formatting</div>
         </div>
 
+        <!-- localStorage Migration -->
+        <div class="settings-card" id="migration-card">
+          <h3>Migrate Local Data to Google Sheets</h3>
+          <p>If you used this app before the Google Sheets backend was set up, your data is still saved locally in this browser. Click below to detect and push it to Google Sheets.</p>
+          <div id="migration-status" style="font-size:13px;color:var(--text2);background:var(--cream);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;display:none"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-navy" onclick="detectLocalData()">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Detect Local Data
+            </button>
+            <button class="btn btn-gold" id="btn-migrate" onclick="migrateFromLocalStorage()" style="display:none">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Push to Google Sheets
+            </button>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:10px">After migration succeeds, the old local data will be cleared from this browser.</div>
+        </div>
+
         <!-- Data Backup -->
         <div class="settings-card">
           <h3>💾 Data Backup & Restore</h3>
@@ -1363,6 +1381,117 @@ function saveDefaultTemplate(){
   LS.set('tms_cfg',cfg);
   document.getElementById('tpl-save-msg').textContent='✓ Template saved';
   setTimeout(()=>document.getElementById('tpl-save-msg').textContent='',3000);
+}
+
+// ── LOCALSTORAGE MIGRATION ────────────────────────────────
+let _migratePayload = null;
+
+function detectLocalData() {
+  const lsCrm = LS.get('tms_crm', null);
+  const lsActivity = LS.get('tms_activity', null);
+  const lsTemplates = LS.get('tms_templates', null);
+  let lsCustom = null;
+  try { lsCustom = JSON.parse(localStorage.getItem('tms_custom_agencies') || 'null'); } catch(e) {}
+
+  const crmCount = lsCrm ? Object.keys(lsCrm).length : 0;
+  const actCount = Array.isArray(lsActivity) ? lsActivity.length : 0;
+  const tplCount = Array.isArray(lsTemplates) ? lsTemplates.length : 0;
+  const caCount  = Array.isArray(lsCustom) ? lsCustom.length : 0;
+
+  const statusEl = document.getElementById('migration-status');
+  const migrateBtn = document.getElementById('btn-migrate');
+  statusEl.style.display = 'block';
+
+  if (crmCount + actCount + tplCount + caCount === 0) {
+    statusEl.innerHTML = '<span style="color:#059669">✓ No local data found — nothing to migrate. Your data is already in Google Sheets.</span>';
+    migrateBtn.style.display = 'none';
+    _migratePayload = null;
+    return;
+  }
+
+  _migratePayload = { crm: lsCrm, activity: lsActivity, templates: lsTemplates, customAgencies: lsCustom };
+  statusEl.innerHTML = `Found local data:<br>
+    &nbsp;• <strong>${crmCount}</strong> agency CRM records<br>
+    &nbsp;• <strong>${actCount}</strong> activity log entries<br>
+    &nbsp;• <strong>${tplCount}</strong> email templates<br>
+    &nbsp;• <strong>${caCount}</strong> custom / edited agencies<br>
+    <span style="color:#92400e;font-size:12px;margin-top:6px;display:block">Click "Push to Google Sheets" to migrate. This will merge with any existing Sheets data (existing Sheets records take priority).</span>`;
+  migrateBtn.style.display = 'inline-flex';
+}
+
+async function migrateFromLocalStorage() {
+  if (!_migratePayload) { showToast('Run Detect first'); return; }
+  const statusEl = document.getElementById('migration-status');
+  const migrateBtn = document.getElementById('btn-migrate');
+  migrateBtn.disabled = true;
+  migrateBtn.innerHTML = '<div class="spinner"></div> Migrating…';
+  statusEl.innerHTML = 'Migrating… please wait.';
+
+  let errors = [];
+
+  try {
+    // Push CRM rows — only for IDs not already in Sheets
+    if (_migratePayload.crm) {
+      for (const [id, d] of Object.entries(_migratePayload.crm)) {
+        const numId = parseInt(id);
+        if (crm[numId]) continue; // already in Sheets, skip
+        const _a = AGENCIES.find(x => x.id === numId) || {};
+        const ok = await apiCall('POST', '/api/crm/' + numId, { agency: _a, crmData: d });
+        if (!ok) errors.push('CRM row ' + id);
+        else crm[numId] = d;
+      }
+    }
+
+    // Push activity — prepend local entries not already in Sheets
+    if (Array.isArray(_migratePayload.activity) && _migratePayload.activity.length > 0) {
+      const merged = [..._migratePayload.activity, ...activity]
+        .filter((e, i, arr) => arr.findIndex(x => x.time === e.time && x.msg === e.msg) === i)
+        .slice(0, 100);
+      const ok = await apiCall('POST', '/api/activity/batch', { entries: merged });
+      if (!ok) errors.push('activity');
+      else activity = merged.slice(0, 20);
+    }
+
+    // Push templates — only if Sheets has none
+    if (Array.isArray(_migratePayload.templates) && _migratePayload.templates.length > 0 && templates.length === 0) {
+      const ok = await apiCall('POST', '/api/templates', { templates: _migratePayload.templates });
+      if (!ok) errors.push('templates');
+      else templates = _migratePayload.templates;
+    }
+
+    // Push custom agencies — merge, Sheets records take priority
+    if (Array.isArray(_migratePayload.customAgencies) && _migratePayload.customAgencies.length > 0) {
+      const existingIds = new Set(customAgencies.map(a => a.id));
+      const newOnes = _migratePayload.customAgencies.filter(a => !existingIds.has(a.id));
+      if (newOnes.length > 0) {
+        const merged = [...customAgencies, ...newOnes];
+        const ok = await apiCall('POST', '/api/custom-agencies', { agencies: merged });
+        if (!ok) errors.push('custom agencies');
+        else { customAgencies = merged; rebuildAgencies(); }
+      }
+    }
+
+    if (errors.length > 0) {
+      statusEl.innerHTML = `<span style="color:#b91c1c">Migration finished with errors on: ${errors.join(', ')}. Check the server console.</span>`;
+    } else {
+      // Clear old localStorage keys
+      localStorage.removeItem('tms_crm');
+      localStorage.removeItem('tms_activity');
+      localStorage.removeItem('tms_templates');
+      localStorage.removeItem('tms_custom_agencies');
+      _migratePayload = null;
+      statusEl.innerHTML = '<span style="color:#059669">✓ Migration complete! Local data has been pushed to Google Sheets and cleared from this browser.</span>';
+      migrateBtn.style.display = 'none';
+      renderDashboard();
+      renderTable();
+      renderTemplates();
+    }
+  } catch(err) {
+    statusEl.innerHTML = '<span style="color:#b91c1c">Error: ' + err.message + '</span>';
+  }
+
+  migrateBtn.disabled = false;
+  migrateBtn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Push to Google Sheets';
 }
 
 

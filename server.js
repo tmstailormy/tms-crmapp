@@ -3,6 +3,18 @@ const { google } = require('googleapis');
 const path = require('path');
 
 const app = express();
+
+// CORS — allow GitHub Pages origin
+app.use((req, res, next) => {
+  const allowed = ['https://tmstailormy.github.io', 'http://localhost:3000'];
+  const origin = req.headers.origin;
+  if (allowed.includes(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname)));
 
@@ -390,6 +402,95 @@ app.post('/api/custom-agencies', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[custom-agencies POST]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── MIGRATE: one-shot localStorage → Sheets ────────────────
+app.post('/api/migrate', async (req, res) => {
+  try {
+    const { crm: crmData, activity: actData, templates: tplData, customAgencies: caData } = req.body;
+    const sheets = await getSheets();
+    const results = { crm: 0, activity: 0, templates: 0, customAgencies: 0, errors: [] };
+
+    // Ensure tabs + headers exist
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+    const existingTitles = meta.data.sheets.map(s => s.properties.title);
+    const tabs = [
+      { name: 'Agencies',       headers: AGENCY_HEADERS },
+      { name: 'Activity',       headers: ['Timestamp', 'Message'] },
+      { name: 'Templates',      headers: ['ID', 'Name', 'Subject', 'Body', 'Created'] },
+      { name: 'CustomAgencies', headers: ['ID', 'Data'] }
+    ];
+    const addRequests = tabs.filter(t => !existingTitles.includes(t.name))
+      .map(t => ({ addSheet: { properties: { title: t.name } } }));
+    if (addRequests.length > 0) {
+      await sheets.spreadsheets.batchUpdate({ spreadsheetId: SHEET_ID, resource: { requests: addRequests } });
+    }
+    for (const tab of tabs) {
+      const check = await sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: `${tab.name}!A1:T1` });
+      if (!check.data.values || check.data.values.length === 0) {
+        await sheets.spreadsheets.values.update({ spreadsheetId: SHEET_ID, range: `${tab.name}!A1`, valueInputOption: 'RAW', resource: { values: [tab.headers] } });
+      }
+    }
+
+    // CRM rows
+    if (crmData && typeof crmData === 'object') {
+      const colA = await sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Agencies!A:A' });
+      const existingIds = new Set((colA.data.values || []).slice(1).map(r => parseInt(r[0])).filter(Boolean));
+      for (const [id, d] of Object.entries(crmData)) {
+        const numId = parseInt(id);
+        if (existingIds.has(numId)) continue; // already in Sheets, skip
+        const log = Array.isArray(d.log) ? d.log.slice(0, 50) : [];
+        const rowData = [numId,'','','','','','','','','','','',
+          d.status||'Not Contacted', d.pic||'', d.picPhone||'', d.picEmail||'',
+          d.notes||'', d.date||'', d.picTitle||'', JSON.stringify(log)];
+        try {
+          await sheets.spreadsheets.values.append({ spreadsheetId: SHEET_ID, range: 'Agencies!A:T', valueInputOption: 'RAW', resource: { values: [rowData] } });
+          results.crm++;
+        } catch(e) { results.errors.push('crm:' + id); }
+      }
+    }
+
+    // Activity
+    if (Array.isArray(actData) && actData.length > 0) {
+      try {
+        await sheets.spreadsheets.values.clear({ spreadsheetId: SHEET_ID, range: 'Activity!A2:B' });
+        const rows = [...actData].reverse().map(e => [e.time||'', e.msg||'']);
+        await sheets.spreadsheets.values.update({ spreadsheetId: SHEET_ID, range: 'Activity!A2', valueInputOption: 'RAW', resource: { values: rows } });
+        results.activity = actData.length;
+      } catch(e) { results.errors.push('activity'); }
+    }
+
+    // Templates
+    if (Array.isArray(tplData) && tplData.length > 0) {
+      const existing = await sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Templates!A2:E' });
+      if (!existing.data.values || existing.data.values.length === 0) {
+        try {
+          const rows = tplData.map(t => [t.id, t.name, t.subject, t.body, t.created||'']);
+          await sheets.spreadsheets.values.update({ spreadsheetId: SHEET_ID, range: 'Templates!A2', valueInputOption: 'RAW', resource: { values: rows } });
+          results.templates = tplData.length;
+        } catch(e) { results.errors.push('templates'); }
+      }
+    }
+
+    // Custom agencies
+    if (Array.isArray(caData) && caData.length > 0) {
+      try {
+        const existing = await sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'CustomAgencies!A2:B' });
+        const existingIds = new Set((existing.data.values || []).map(r => parseInt(r[0])).filter(Boolean));
+        const newOnes = caData.filter(a => !existingIds.has(a.id));
+        if (newOnes.length > 0) {
+          await sheets.spreadsheets.values.append({ spreadsheetId: SHEET_ID, range: 'CustomAgencies!A:B', valueInputOption: 'RAW', resource: { values: newOnes.map(a => [a.id, JSON.stringify(a)]) } });
+        }
+        results.customAgencies = newOnes.length;
+      } catch(e) { results.errors.push('customAgencies'); }
+    }
+
+    console.log('[migrate]', results);
+    res.json({ ok: true, results });
+  } catch (err) {
+    console.error('[migrate]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
