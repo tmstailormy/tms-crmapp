@@ -1124,12 +1124,13 @@ function syncDone(ok) {
   if (!ok) { _syncErr = true; if (_syncErrTimer) clearTimeout(_syncErrTimer); _syncErrTimer = setTimeout(()=>{ _syncErr=false; if(!_syncPending) _setSyncUI('ok','Sheets synced'); }, 4000); }
   if (_syncPending === 0) { _setSyncUI(_syncErr ? 'err' : 'ok', _syncErr ? 'Sync error' : 'Sheets synced'); }
 }
+const API_BASE = 'https://tms-crmapp-production.up.railway.app';
 async function apiCall(method, endpoint, body) {
   syncStart();
   try {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body !== undefined) opts.body = JSON.stringify(body);
-    const resp = await fetch(endpoint, opts);
+    const resp = await fetch(API_BASE + endpoint, opts);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     syncDone(true);
     return await resp.json();
@@ -1142,12 +1143,12 @@ async function apiCall(method, endpoint, body) {
 async function initFromSheets() {
   try {
     syncStart();
-    await fetch('/api/init', { method: 'POST' });
+    await fetch(API_BASE + '/api/init', { method: 'POST' });
     const [crmData, actData, tplData, caData] = await Promise.all([
-      fetch('/api/crm').then(r=>r.json()).catch(()=>({})),
-      fetch('/api/activity').then(r=>r.json()).catch(()=>[]),
-      fetch('/api/templates').then(r=>r.json()).catch(()=>[]),
-      fetch('/api/custom-agencies').then(r=>r.json()).catch(()=>[])
+      fetch(API_BASE + '/api/crm').then(r=>r.json()).catch(()=>({})),
+      fetch(API_BASE + '/api/activity').then(r=>r.json()).catch(()=>[]),
+      fetch(API_BASE + '/api/templates').then(r=>r.json()).catch(()=>[]),
+      fetch(API_BASE + '/api/custom-agencies').then(r=>r.json()).catch(()=>[])
     ]);
     if (crmData && typeof crmData === 'object' && !crmData.error) {
       Object.entries(crmData).forEach(([id, d]) => { crm[parseInt(id)] = d; });

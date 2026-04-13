@@ -39,7 +39,7 @@ async function getSheets() {
 }
 
 // ── INIT: create tabs + headers ─────────────────────────────
-app.post('/api/init', async (req, res) => {
+app.all('/api/init', async (req, res) => {
   try {
     const sheets = await getSheets();
 
