@@ -636,6 +636,255 @@ app.get('/api/inspect-overflow', async (req, res) => {
   }
 });
 
+// ── FIX OVERFLOW: recover AF-AM data into A-V, then delete W-AM ─
+// The old migration wrote CRM data to cols AF-AM (indices 31-38)
+// while cols W-AE (22-30) are empty.  This endpoint:
+//   1. Reads all rows A1:AM
+//   2. For each agency, merges AF-AM CRM data into A-V where A-V is empty
+//   3. Rewrites corrected 22-col rows to A-V
+//   4. Deletes columns W-AM so the sheet is clean
+// Accepts { agencies } in the body so agency static data is available.
+app.post('/api/fix-overflow', async (req, res) => {
+  try {
+    const { agencies } = req.body;
+    if (!Array.isArray(agencies) || agencies.length === 0) {
+      return res.status(400).json({ error: 'agencies array required in body' });
+    }
+
+    const sheets = await getSheets();
+
+    // ── 1. Read the full sheet including overflow ──────────────────
+    const raw = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Agencies!A1:AM'
+    });
+    const allRows = raw.data.values || [];
+    if (allRows.length < 2) return res.json({ ok: true, message: 'No data rows found' });
+
+    // Known overflow column positions (AF-AM = indices 31-38)
+    const OVF = {
+      status:   31, // AF
+      pic:      32, // AG
+      picPhone: 33, // AH
+      picEmail: 34, // AI
+      notes:    35, // AJ
+      date:     36, // AK
+      picTitle: 37, // AL
+      log:      38  // AM
+    };
+
+    // New 22-col CRM field positions (A-V = indices 0-21)
+    const NEW = {
+      status:   14,
+      pic:      15,
+      picPhone: 16,
+      picEmail: 17,
+      picTitle: 18,
+      notes:    19,
+      date:     20,
+      log:      21
+    };
+
+    const agencyMap = {};
+    agencies.forEach(a => { agencyMap[a.id] = a; });
+
+    const col = (row, i) => (row[i] != null ? String(row[i]) : '');
+    const isEmpty = (v) => !v || v.trim() === '' || v === 'Not Contacted' || v === '[]';
+
+    const report = { merged: 0, unchanged: 0, skipped: 0, errors: [] };
+    const correctedRows = [];
+
+    const dataRows = allRows.slice(1); // skip header row
+    for (const row of dataRows) {
+      const id = parseInt(row[0]);
+      if (!id) { report.skipped++; continue; }
+
+      // Current A-V CRM values
+      const curStatus   = col(row, NEW.status);
+      const curPic      = col(row, NEW.pic);
+      const curPicPhone = col(row, NEW.picPhone);
+      const curPicEmail = col(row, NEW.picEmail);
+      const curPicTitle = col(row, NEW.picTitle);
+      const curNotes    = col(row, NEW.notes);
+      const curDate     = col(row, NEW.date);
+      const curLogRaw   = col(row, NEW.log);
+
+      // Overflow AF-AM CRM values
+      const ovfStatus   = col(row, OVF.status);
+      const ovfPic      = col(row, OVF.pic);
+      const ovfPicPhone = col(row, OVF.picPhone);
+      const ovfPicEmail = col(row, OVF.picEmail);
+      const ovfPicTitle = col(row, OVF.picTitle);
+      const ovfNotes    = col(row, OVF.notes);
+      const ovfDate     = col(row, OVF.date);
+      const ovfLogRaw   = col(row, OVF.log);
+
+      // Merge: prefer existing A-V value; use overflow only if A-V is empty/default
+      const mergedStatus   = isEmpty(curStatus)   ? (ovfStatus   || 'Not Contacted') : curStatus;
+      const mergedPic      = isEmpty(curPic)      ? ovfPic      : curPic;
+      const mergedPicPhone = isEmpty(curPicPhone) ? ovfPicPhone : curPicPhone;
+      const mergedPicEmail = isEmpty(curPicEmail) ? ovfPicEmail : curPicEmail;
+      const mergedPicTitle = isEmpty(curPicTitle) ? ovfPicTitle : curPicTitle;
+      const mergedNotes    = isEmpty(curNotes)    ? ovfNotes    : curNotes;
+      const mergedDate     = isEmpty(curDate)     ? ovfDate     : curDate;
+
+      // Merge logs: combine unique entries from both sources
+      let curLog = [];
+      let ovfLog = [];
+      try { if (curLogRaw && curLogRaw !== '[]') curLog = JSON.parse(curLogRaw); } catch(e) {}
+      try { if (ovfLogRaw && ovfLogRaw !== '[]') ovfLog = JSON.parse(ovfLogRaw); } catch(e) {}
+      // Deduplicate by msg+time; prefer existing log order on top, overflow below
+      const logSet = new Set(curLog.map(e => e.msg + '|' + e.time));
+      const mergedLog = [...curLog, ...ovfLog.filter(e => !logSet.has(e.msg + '|' + e.time))].slice(0, 50);
+
+      const anyMerged = (
+        (isEmpty(curStatus)   && ovfStatus)   ||
+        (isEmpty(curPic)      && ovfPic)      ||
+        (isEmpty(curPicPhone) && ovfPicPhone) ||
+        (isEmpty(curPicEmail) && ovfPicEmail) ||
+        (isEmpty(curPicTitle) && ovfPicTitle) ||
+        (isEmpty(curNotes)    && ovfNotes)    ||
+        (isEmpty(curDate)     && ovfDate)     ||
+        (curLog.length === 0  && ovfLog.length > 0)
+      );
+
+      if (anyMerged) report.merged++;
+      else report.unchanged++;
+
+      const agency = agencyMap[id] || {};
+      correctedRows.push({
+        id,
+        row: buildAgencyRow(id, agency, {
+          status:   mergedStatus,
+          pic:      mergedPic,
+          picPhone: mergedPicPhone,
+          picEmail: mergedPicEmail,
+          picTitle: mergedPicTitle,
+          notes:    mergedNotes,
+          date:     mergedDate,
+          log:      mergedLog
+        })
+      });
+    }
+
+    // Sort by ID before writing
+    correctedRows.sort((a, b) => a.id - b.id);
+
+    // ── 2. Collect Activity entries from ALL agency logs (A-V + overflow) ──
+    // The frontend Activity tab is limited to 20 in-memory entries.
+    // The overflow logs contain batch email records that never made it
+    // into the Activity sheet.  We reconstruct them here.
+    const activitySet = new Map(); // key = time+msg, value = {time, msg}
+
+    for (const row of dataRows) {
+      const id = parseInt(row[0]);
+      if (!id) continue;
+
+      // Current A-V log
+      const curLogRaw = col(row, NEW.log);
+      // Overflow log
+      const ovfLogRaw = col(row, OVF.log);
+
+      for (const raw of [curLogRaw, ovfLogRaw]) {
+        if (!raw || raw === '[]') continue;
+        try {
+          const entries = JSON.parse(raw);
+          for (const e of entries) {
+            if (e.msg && e.time) {
+              const key = e.time + '|' + e.msg;
+              if (!activitySet.has(key)) activitySet.set(key, { time: e.time, msg: e.msg });
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    // Read current Activity tab and add those too
+    const actRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Activity!A2:B'
+    });
+    for (const row of (actRes.data.values || [])) {
+      const time = row[0] || '';
+      const msg  = row[1] || '';
+      if (time && msg) {
+        const key = time + '|' + msg;
+        if (!activitySet.has(key)) activitySet.set(key, { time, msg });
+      }
+    }
+
+    // Sort by time descending (newest first), keep up to 100
+    const allActivity = [...activitySet.values()].sort((a, b) => {
+      // Parse "DD/MM/YYYY, H:MM:SS am/pm" timestamps
+      const parse = s => {
+        try {
+          const [datePart, timePart] = s.split(', ');
+          const [d, m, y] = datePart.split('/').map(Number);
+          return new Date(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')} ${timePart}`);
+        } catch(e) { return new Date(0); }
+      };
+      return parse(b.time) - parse(a.time); // newest first
+    }).slice(0, 100);
+
+    const prevActivityCount = (actRes.data.values || []).length;
+    report.activityRecovered = allActivity.length - prevActivityCount;
+
+    // ── 3. Clear and rewrite A1:V with corrected data ──────────────
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: SHEET_ID,
+      range: 'Agencies!A1:V'
+    });
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: 'Agencies!A1',
+      valueInputOption: 'RAW',
+      resource: { values: [AGENCY_HEADERS, ...correctedRows.map(r => r.row)] }
+    });
+
+    // ── 4. Rewrite Activity tab with merged entries ─────────────────
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: SHEET_ID,
+      range: 'Activity!A2:B'
+    });
+    if (allActivity.length > 0) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID,
+        range: 'Activity!A2',
+        valueInputOption: 'RAW',
+        resource: { values: allActivity.map(e => [e.time, e.msg]) }
+      });
+    }
+
+    // ── 5. Delete columns W-AM (indices 22-38, 0-based; endIndex exclusive = 39) ──
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+    const agenciesSheet = meta.data.sheets.find(s => s.properties.title === 'Agencies');
+    if (agenciesSheet) {
+      const sheetId = agenciesSheet.properties.sheetId;
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SHEET_ID,
+        resource: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId,
+                dimension: 'COLUMNS',
+                startIndex: 22,  // W (0-based)
+                endIndex:   39   // exclusive → deletes W through AM
+              }
+            }
+          }]
+        }
+      });
+    }
+
+    console.log(`[fix-overflow] merged: ${report.merged}, unchanged: ${report.unchanged}, activity: ${allActivity.length} entries, columns W-AM deleted`);
+    res.json({ ok: true, report });
+  } catch (err) {
+    console.error('[fix-overflow]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── RESET-SHEET: remap + rewrite Agencies tab cleanly ────────
 // POST body: { agencies: [ agency objects from BUILTIN_AGENCIES ] }
 // Reads the HEADER ROW first to detect old (20-col) vs new (22-col)
