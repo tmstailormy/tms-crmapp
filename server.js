@@ -539,11 +539,50 @@ app.get('/api/backup', async (req, res) => {
   }
 });
 
+// ── SHEET DIAGNOSTICS: inspect current column layout ────────
+// Returns the header row and first 5 data rows so you can verify
+// which columns actually hold which data before a reset.
+app.get('/api/debug-sheet', async (req, res) => {
+  try {
+    const sheets = await getSheets();
+
+    const raw = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Agencies!A1:V'
+    });
+    const allRows = raw.data.values || [];
+    if (allRows.length === 0) return res.json({ headers: [], sample: [] });
+
+    const headers = allRows[0];
+    const dataRows = allRows.slice(1, 6); // first 5 data rows
+
+    // Map each data row into { colLetter, header, value } so it's easy to read
+    const sample = dataRows.map(row => {
+      const cells = {};
+      headers.forEach((h, i) => {
+        const letter = String.fromCharCode(65 + i); // A, B, C …
+        cells[`${letter}(${i}):${h}`] = row[i] || '';
+      });
+      return cells;
+    });
+
+    res.json({
+      detectedLayout: headers[9] === 'Phone2' ? 'NEW 22-col' : 'OLD 20-col',
+      headerCount: headers.length,
+      headers,
+      sample
+    });
+  } catch (err) {
+    console.error('[debug-sheet]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── RESET-SHEET: remap + rewrite Agencies tab cleanly ────────
 // POST body: { agencies: [ agency objects from BUILTIN_AGENCIES ] }
-// Reads existing CRM data (status/notes/PIC/log) from the sheet,
-// merges with fresh agency static data, and rewrites all rows in
-// the correct 22-column order.  No CRM data is lost.
+// Reads the HEADER ROW first to detect old (20-col) vs new (22-col)
+// layout — never relies on row.length, which is unreliable because
+// the Sheets API strips trailing empty cells from every row.
 app.post('/api/reset-sheet', async (req, res) => {
   try {
     const { agencies } = req.body;
@@ -553,89 +592,118 @@ app.post('/api/reset-sheet', async (req, res) => {
 
     const sheets = await getSheets();
 
-    // Read everything currently in the sheet (could be old 20-col or new 22-col layout)
-    const existing = await sheets.spreadsheets.values.get({
+    // ── Step 1: read header to determine the sheet's current layout ──
+    const headerRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Agencies!A1:V1'
+    });
+    const headers = (headerRes.data.values || [[]])[0] || [];
+
+    // Detect layout by column 9's header name:
+    //   Old 20-col: col9 = 'Email'   (no Phone2/Fax)
+    //   New 22-col: col9 = 'Phone2'
+    // IMPORTANT: Do NOT use row.length — Google Sheets strips trailing
+    // empty cells, so a new-layout row with empty Date/Log columns will
+    // look like it only has 20 cells and fool a length-based check.
+    const isNewLayout = headers[9] === 'Phone2';
+
+    // Column positions for CRM fields
+    let statusCol, picCol, picPhoneCol, picEmailCol, picTitleCol, notesCol, dateCol, logCol;
+    if (isNewLayout) {
+      // New 22-col (A–V):
+      // [0]ID [1]Name [2]Short [3]Type [4]District [5]Division
+      // [6]Website [7]Address [8]Phone [9]Phone2 [10]Fax [11]Email
+      // [12]Admin Email [13]Procurement Email
+      // [14]Status [15]PIC [16]PIC Phone [17]PIC Email [18]PIC Title
+      // [19]Notes [20]Last Action Date [21]Log
+      statusCol   = 14;
+      picCol      = 15;
+      picPhoneCol = 16;
+      picEmailCol = 17;
+      picTitleCol = 18;
+      notesCol    = 19;
+      dateCol     = 20;
+      logCol      = 21;
+    } else {
+      // Old 20-col (A–T):
+      // [0]Agency ID [1]Name [2]Short Name [3]Type [4]District [5]Division
+      // [6]Website [7]Address [8]Phone [9]Email
+      // [10]Admin Email [11]Procurement Email
+      // [12]Status [13]PIC [14]PIC Phone [15]PIC Email
+      // [16]Notes [17]Last Action Date [18]PIC Title [19]Activity Log
+      statusCol   = 12;
+      picCol      = 13;
+      picPhoneCol = 14;
+      picEmailCol = 15;
+      notesCol    = 16;
+      dateCol     = 17;
+      picTitleCol = 18;
+      logCol      = 19;
+    }
+
+    console.log(`[reset-sheet] detected layout: ${isNewLayout ? 'NEW 22-col' : 'OLD 20-col'} (header[9]="${headers[9]}")`);
+    console.log(`[reset-sheet] CRM cols → status:${statusCol} pic:${picCol} picPhone:${picPhoneCol} picEmail:${picEmailCol} picTitle:${picTitleCol} notes:${notesCol} date:${dateCol} log:${logCol}`);
+
+    // ── Step 2: read all data rows ───────────────────────────────────
+    const dataRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Agencies!A2:V'
     });
-    const existingRows = existing.data.values || [];
+    const existingRows = dataRes.data.values || [];
 
-    // Build a map of id → existing CRM fields, being lenient about column count.
-    // We detect old (20-col) vs new (22-col) layout by presence of Phone2/Fax columns.
-    // Strategy: try to read from new positions first; if row is only 20 cols, fall back
-    // to old positions.
+    // ── Step 3: build id → CRM map using header-derived positions ────
     const crmByID = {};
     for (const row of existingRows) {
       const id = parseInt(row[0]);
       if (!id) continue;
 
-      const isOldLayout = row.length <= 20;
-      let status, pic, picPhone, picEmail, picTitle, notes, date, rawLog;
-
-      if (isOldLayout) {
-        // Old 20-col: [12]=Status [13]=PIC [14]=PICPhone [15]=PICEmail
-        //             [16]=Notes [17]=Date [18]=PICTitle  [19]=Log
-        status   = row[12] || 'Not Contacted';
-        pic      = row[13] || '';
-        picPhone = row[14] || '';
-        picEmail = row[15] || '';
-        notes    = row[16] || '';
-        date     = row[17] || '';
-        picTitle = row[18] || '';
-        rawLog   = row[19] || '';
-      } else {
-        // New 22-col: [14]=Status [15]=PIC [16]=PICPhone [17]=PICEmail
-        //             [18]=PICTitle [19]=Notes [20]=Date [21]=Log
-        status   = row[14] || 'Not Contacted';
-        pic      = row[15] || '';
-        picPhone = row[16] || '';
-        picEmail = row[17] || '';
-        picTitle = row[18] || '';
-        notes    = row[19] || '';
-        date     = row[20] || '';
-        rawLog   = row[21] || '';
-      }
+      // Safe accessor — returns '' for any column that is missing/empty
+      const col = (i) => (row[i] != null ? String(row[i]) : '');
 
       let log = [];
-      try { if (rawLog) log = JSON.parse(rawLog); } catch (e) {}
+      try { if (col(logCol)) log = JSON.parse(col(logCol)); } catch (e) {}
 
-      crmByID[id] = { status, pic, picPhone, picEmail, picTitle, notes, date, log };
+      crmByID[id] = {
+        status:   col(statusCol)   || 'Not Contacted',
+        pic:      col(picCol),
+        picPhone: col(picPhoneCol),
+        picEmail: col(picEmailCol),
+        picTitle: col(picTitleCol),
+        notes:    col(notesCol),
+        date:     col(dateCol),
+        log
+      };
     }
 
-    // Build clean rows for every agency provided
+    console.log(`[reset-sheet] read ${existingRows.length} existing rows, found CRM data for ${Object.keys(crmByID).length} agencies`);
+
+    // ── Step 4: build clean 22-col rows for every agency in request ──
     const newRows = agencies.map(agency => {
       const crm = crmByID[agency.id] || {};
       return buildAgencyRow(agency.id, agency, crm);
     });
-
-    // Sort by agency ID
     newRows.sort((a, b) => a[0] - b[0]);
 
-    // Clear data rows and rewrite
+    // ── Step 5: clear and rewrite ────────────────────────────────────
     await sheets.spreadsheets.values.clear({
       spreadsheetId: SHEET_ID,
-      range: 'Agencies!A2:V'
+      range: 'Agencies!A1:V'  // clear header + data
     });
 
-    // Ensure header row has correct columns
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: 'Agencies!A1',
       valueInputOption: 'RAW',
-      resource: { values: [AGENCY_HEADERS] }
+      resource: { values: [AGENCY_HEADERS, ...newRows] }
     });
 
-    if (newRows.length > 0) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SHEET_ID,
-        range: 'Agencies!A2',
-        valueInputOption: 'RAW',
-        resource: { values: newRows }
-      });
-    }
-
-    console.log(`[reset-sheet] rewrote ${newRows.length} rows`);
-    res.json({ ok: true, rowsWritten: newRows.length });
+    console.log(`[reset-sheet] rewrote header + ${newRows.length} rows`);
+    res.json({
+      ok: true,
+      detectedLayout: isNewLayout ? 'NEW 22-col' : 'OLD 20-col',
+      crmFound: Object.keys(crmByID).length,
+      rowsWritten: newRows.length
+    });
   } catch (err) {
     console.error('[reset-sheet]', err.message);
     res.status(500).json({ error: err.message });
